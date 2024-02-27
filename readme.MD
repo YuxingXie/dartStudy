@@ -1036,32 +1036,112 @@ Lexical是词汇的意思，但是我觉得这里应该是变量作用域。
 如果看文档上的例子，你不会理解闭包。在网上找了一篇《深入理解 Dart Function & Closure》的文章，对我理解很有帮助，但解释得有点繁琐。
 不如看我三言两语解释透彻。
 
-先看看闭包的定义：
-```text
-闭包是一个函数对象，它可以访问其词法作用域中的变量，即使该函数在其原始作用域之外使用也是如此。
-```
 
 我自己写了个例子：
 ```dart
 void main() {
 
-  var print1 = setDiscountToCalTotal(0.8);
+  var print1 = setDiscountToCal(0.8);
   print1(100);
-  var print2 = setDiscountToCalTotal(0.5);
+  var print2 = setDiscountToCal(0.5);
   print1(50);
   print2(500);
-  print(total);
 }
 
-double total=0;
-Function setDiscountToCalTotal(double discount){
+Function setDiscountToCal(double discount){
   print('设置折扣为：$discount');
-  var printTotal = (int price){
+  var printCost = (int price){
     double cost = price*discount;
-    total+=cost;
-    print('当前商品价格：$price,折扣：${discount},折后价：$cost,总价：$total');
+    print('当前商品价格：$price,折扣：${discount},折后价：$cost');
   };
-  return printTotal;
+  return printCost;
 }
 ```
+先弄清一下词汇作用域。最顶层的变量是total变量,setDiscountToCal函数和main函数。
+我们只关注和闭包相关的作用域，setDiscountToCal内包含一个作用域，
+它包括discount double型变量和printCost这个函数变量。在printCost函数内部也封闭了一个作用域，
+包含变量 int price。
 
+我们在main中调用setDiscountToCal(0.8)，实际上是将printCost这个函数赋值给了print1，
+但是printCost函数用到了它上一级作用域setDiscountToCal中的变量discount。为了能让程序能够运行，
+赋值给print1的函数必须要包含discount的信息。
+
+再看看闭包的定义：
+```text
+闭包是一个函数对象，它可以访问其词法作用域中的变量，即使该函数在其原始作用域之外使用也是如此。
+```
+现在是不是一目了然了呢？这里闭包是一个函数对象，即printCost这个函数，它可以访问其词法作用域中的变量discount，
+即使该函数main作用域中，也是如此。
+
+##### 4.6.5 一个Java程序员对闭包的思考
+
+闭包现象存在是一个合乎设计原则的东西吗？我的回答是no。当我们想抽取一个函数放入工具集的时候，你会发现这个函数跟它的环境耦合了，
+无法成为一个纯函数。
+
+##### 4.6.6 函数的相等性
+```dart
+void foo() {} // A top-level function
+
+class A {
+  static void bar() {} // A static method
+  void baz() {} // An instance method
+}
+
+void main() {
+  Function x;
+
+  // Comparing top-level functions.
+  x = foo;
+  assert(foo == x);
+
+  // Comparing static methods.
+  x = A.bar;
+  assert(A.bar == x);
+
+  // Comparing instance methods.
+  var v = A(); // Instance #1 of A
+  var w = A(); // Instance #2 of A
+  var y = w;
+  x = w.baz;
+
+  // These closures refer to the same instance (#2),
+  // so they're equal.
+  assert(y.baz == x);
+
+  // These closures refer to different instances,
+  // so they're unequal.
+  assert(v.baz != w.baz);
+}
+```
+不同实例的函数是不相等的。相等需要相同实例的同一个函数。
+
+##### 4.6.7 返回值
+
+所有函数都会返回一个值。如果未指定返回值，则该语句return null;将隐式附加到函数体中。
+
+要在函数中返回多个值，请聚合记录中的值。
+```dart
+(String, int) foo() {
+  return ('something', 42);
+}
+```
+##### 4.6.7 计数器(Generators)
+当您需要惰性地生成一系列值时，请考虑使用生成器函数。Dart内置支持两种生成器函数:
+* 同步生成器:返回一个Iterable对象。
+* 异步生成器:返回一个流对象。
+
+要实现同步生成器函数，将函数体标记为sync*，并使用yield语句来传递值(类似于return):
+```dart
+Iterable<int> naturalsTo(int n) sync* {
+  int k = 0;
+  while (k < n) yield k++;
+}
+```
+要实现异步生成器函数，请将函数体标记为async*，并使用yield语句来传递值(类似于return):
+```dart
+Stream<int> asynchronousNaturalsTo(int n) async* {
+  int k = 0;
+  while (k < n) yield k++;
+}
+```
+官网的实例就这么简单，如果不解释估计没人知道它是干什么用的。
