@@ -1,11 +1,14 @@
 late String description;
 void main() {
-  const list = ['apples', 'bananas', 'oranges'];
-  list.map((item) {
-    return item.toUpperCase();
-  }).forEach((item) {
-    print('$item: ${item.length}');
-  });
+
+
+  var printNumber = numberPrinter();
+  printNumber(); // 10
+  printNumber(); // 20
+  var printNumber1 = numberPrinter();
+  var printNumber2 = numberPrinter();
+  printNumber1();
+  printNumber2();
 
 }
 void printElement(int element) {
@@ -28,3 +31,13 @@ String say(String from, String msg, [String? device]) {
   }
   return result;
 }
+int num = 0;
+
+var numberPrinter = (){
+  return (){
+    for(int i = 0; i < 10; i++){
+      num++;
+    }
+    print(num);
+  };
+};

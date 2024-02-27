@@ -992,3 +992,67 @@ Iterable<T> map<T>(
 我们查看List的定义，它是List<E> class，所以E是List的元素类型。而T则是另一种类型。所以map方法可以返回一个另外一个泛型类型的List<T>。
 
 理解了API，我们使用map方法时就不能随便传一个函数，函数的参数的类型是List的元素类型E，函数的返回值类型是你想要的类型T。
+
+##### 4.6.2 使用示例
+
+```dart
+const list = ['apples', 'bananas', 'oranges'];
+list.map((item) {
+  return item.toUpperCase();
+}).forEach((item) {
+  print('$item: ${item.length}');
+});
+```
+这个例子里，map方法和forEach方法分别传入了匿名函数。不过这个例子不太助于我们理解刚学过的api，我把它改一改：
+```dart
+  const list = ['apples', 'bananas', 'oranges'];
+  list.map((item) {
+    return item.length;
+  }).forEach((item) {
+    print('$item *2=${item*2}');
+  });
+
+```
+现在再来分析一下。map方法传入了一个匿名函数，它的参数item必须是和list元素一样的String类型。
+我们知道map方法返回一个由匿名函数返回类型决定的新的List。我把代码改为return item.length，返回值类型变为了int，
+那么map方法就返回一个List<int>。然后我们在这个新的List<int>调用forEach方法，这个时候传入forEach的匿名函数的参数item，
+它的类型这个时候是int，所以可以使用乘法运算。
+
+可以使用箭头函数简写代码：
+```dart
+list
+    .map((item) => item.toUpperCase())
+    .forEach((item) => print('$item: ${item.length}'));
+```
+
+##### 4.6.3 变量作用域 (Lexical scope)
+
+Lexical是词汇的意思，但是我觉得这里应该是变量作用域。
+
+和java一样，花括号里面的代码块包含的变量不会在它外面生效，但外面的可以在里面使用。
+
+##### 4.6.4 闭包（Lexical closures）
+
+如果看文档上的例子，你不会理解闭包。在网上找了一篇《深入理解 Dart Function & Closure》的文章，对我理解很有帮助，但解释得有点繁琐。
+不如看我三言两语解释透彻。
+
+例子还是举文档上现成的例子：
+```dart
+/// Returns a function that adds [addBy] to the
+/// function's argument.
+Function makeAdder(int addBy) {
+  return (int i) => addBy + i;
+}
+
+void main() {
+  // Create a function that adds 2.
+  var add2 = makeAdder(2);
+
+  // Create a function that adds 4.
+  var add4 = makeAdder(4);
+
+  assert(add2(3) == 5);
+  assert(add4(3) == 7);
+}
+```
+
