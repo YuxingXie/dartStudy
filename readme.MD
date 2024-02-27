@@ -931,8 +931,8 @@ list.forEach(printElement);
 
 比较遗憾，之前并没有学习list的forEach方法的用法，我很好奇printElement是怎么知道传入的参数就是list迭代到的值呢？
 
-好在我在别的文档上
-(https://api.dart.dev/stable/3.3.0/dart-core/Iterable/forEach.html)找到了List的forEach实现，如下：
+好在我在api文档上
+https://api.dart.dev/stable/3.3.0/dart-core/Iterable/forEach.html 找到了List的forEach实现，如下：
 ```dart
 void forEach(void action(E element)) {
   for (E element in this) action(element);
@@ -949,3 +949,27 @@ assert(loudify('hello') == '!!! HELLO !!!');
 这样函数就是匿名的了。关于这个下小节会讲更多。
 
 #### 4.6 匿名函数(Anonymous functions)
+
+匿名函数，有时也称为lambda或闭包。
+
+匿名函数这样声明：
+```text
+([[Type] param1[, …]]) {
+  codeBlock;
+};
+```
+
+##### 4.6.1 研究下List.map先
+
+后面的例子用到了List的map方法，所以先研究一下API，地址在这里： 
+
+https://api.dart.cn/stable/3.3.0/dart-core/Iterable/map.html
+
+方法签名：
+```dart
+Iterable<T> map<T>(
+    T toElement(
+      E e
+    )
+)
+```
