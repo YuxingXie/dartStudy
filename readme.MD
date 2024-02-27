@@ -973,3 +973,18 @@ Iterable<T> map<T>(
     )
 )
 ```
+下面是api的翻译加上我的注释，我的注释放在括号里。
+```text
+这个可迭代对象的当前元素(E e)被toElement修改。
+返回一个新的lazy Iterable，其中的元素是通过按迭代顺序对该Iterable的每个元素调用toElement创建的。
+
+返回的可迭代对象是惰性的，所以它不会迭代这个可迭代对象的元素，直到它自己被迭代(比如forEach被调用)，
+然后它将应用toElement(toElement是一个函数)来一次创建一个元素。
+转换后的元素不会被缓存。
+
+对返回的Iterable进行多次迭代将在每次迭代中对每个元素调用一次提供的toElement函数。
+
+返回的可迭代对象上的方法可以在不需要结果的任何元素上省略调用toElement。
+例如，elementAt只能调用一次toElement。
+```
+
