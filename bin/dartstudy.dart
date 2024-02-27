@@ -1,12 +1,11 @@
 late String description;
 void main() {
-//  String? maybeString = 'nullable with base type String';
-
-
-  var list = [1, 2, 3];
-
-// Pass printElement as a parameter.
-  list.forEach(printElement);
+  const list = ['apples', 'bananas', 'oranges'];
+  list.map((item) {
+    return item.toUpperCase();
+  }).forEach((item) {
+    print('$item: ${item.length}');
+  });
 
 }
 void printElement(int element) {

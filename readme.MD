@@ -988,3 +988,7 @@ Iterable<T> map<T>(
 例如，elementAt只能调用一次toElement。
 ```
 
+这里要理解的是参数。map方法要求我们传入一个函数toElement，这个函数参数是E类型的。E和T类型之间有什么关系吗？
+我们查看List的定义，它是List<E> class，所以E是List的元素类型。而T则是另一种类型。所以map方法可以返回一个另外一个泛型类型的List<T>。
+
+理解了API，我们使用map方法时就不能随便传一个函数，函数的参数的类型是List的元素类型E，函数的返回值类型是你想要的类型T。
