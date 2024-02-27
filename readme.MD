@@ -1179,3 +1179,36 @@ List<int> li=[-1,-2,-3];
 打印结果是：(8, -1, -2, -3)，证实了我的想法正确。
 
 yield它不同于return，一个函数中可以有多个yield。
+
+异步的Stream是啥先不研究了，碰到问题再说。
+
+### 7.控制流
+
+
+#### 7.1 循环
+
+和别的语言控制流没啥区别，只说几点不一样的。
+
+##### 7.1.1 Dart for循环内的闭包捕获索引的值
+```dart
+    var callbacks = [];
+    for (var i = 0; i < 2; i++) {
+      callbacks.add(() => print(i));
+    }
+    
+    for (final c in callbacks) {
+      c();
+    }
+```
+结果按预期本就应该是0和1，不过据说在JavaScript中都会输出2，是因为js的陷阱。
+
+##### 7.1.2 using an Iterable such as a list or set
+
+用forEach循环可以便利Iterable，而且在循环之前可以用where方法进行条件筛选，如：
+```dart
+candidates
+    .where((c) => c.yearsExperience >= 5)
+    .forEach((c) => c.interview());
+```
+#### 7.2 条件
+
