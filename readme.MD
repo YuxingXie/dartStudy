@@ -1036,23 +1036,32 @@ Lexical是词汇的意思，但是我觉得这里应该是变量作用域。
 如果看文档上的例子，你不会理解闭包。在网上找了一篇《深入理解 Dart Function & Closure》的文章，对我理解很有帮助，但解释得有点繁琐。
 不如看我三言两语解释透彻。
 
-例子还是举文档上现成的例子：
+先看看闭包的定义：
+```text
+闭包是一个函数对象，它可以访问其词法作用域中的变量，即使该函数在其原始作用域之外使用也是如此。
+```
+
+我自己写了个例子：
 ```dart
-/// Returns a function that adds [addBy] to the
-/// function's argument.
-Function makeAdder(int addBy) {
-  return (int i) => addBy + i;
+void main() {
+
+  var print1 = setDiscountToCalTotal(0.8);
+  print1(100);
+  var print2 = setDiscountToCalTotal(0.5);
+  print1(50);
+  print2(500);
+  print(total);
 }
 
-void main() {
-  // Create a function that adds 2.
-  var add2 = makeAdder(2);
-
-  // Create a function that adds 4.
-  var add4 = makeAdder(4);
-
-  assert(add2(3) == 5);
-  assert(add4(3) == 7);
+double total=0;
+Function setDiscountToCalTotal(double discount){
+  print('设置折扣为：$discount');
+  var printTotal = (int price){
+    double cost = price*discount;
+    total+=cost;
+    print('当前商品价格：$price,折扣：${discount},折后价：$cost,总价：$total');
+  };
+  return printTotal;
 }
 ```
 

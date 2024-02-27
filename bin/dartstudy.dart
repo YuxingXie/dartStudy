@@ -1,43 +1,20 @@
-late String description;
 void main() {
 
-
-  var printNumber = numberPrinter();
-  printNumber(); // 10
-  printNumber(); // 20
-  var printNumber1 = numberPrinter();
-  var printNumber2 = numberPrinter();
-  printNumber1();
-  printNumber2();
-
-}
-void printElement(int element) {
-  print(element);
-}
-void enableFlags(String description,{bool? bold=true, bool? hidden=false}) {
-  if(bold!=null&&bold){
-    print('bold');
-  }else print('not bold');
-  if(hidden!=null&&hidden){
-    print('hidden');
-  }else print('not hidden');
-  print(description);
+  var print1 = setDiscountToCalTotal(0.8);
+  print1(100);
+  var print2 = setDiscountToCalTotal(0.5);
+  print1(50);
+  print2(500);
+  print(total);
 }
 
-String say(String from, String msg, [String? device]) {
-  var result = '$from says $msg';
-  if (device != null) {
-    result = '$result with a $device';
-  }
-  return result;
-}
-int num = 0;
-
-var numberPrinter = (){
-  return (){
-    for(int i = 0; i < 10; i++){
-      num++;
-    }
-    print(num);
+double total=0;
+Function setDiscountToCalTotal(double discount){
+  print('设置折扣为：$discount');
+  var printTotal = (int price){
+    double cost = price*discount;
+    total+=cost;
+    print('当前商品价格：$price,折扣：${discount},折后价：$cost,总价：$total');
   };
-};
+  return printTotal;
+}
