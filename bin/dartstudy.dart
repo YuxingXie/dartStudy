@@ -4,8 +4,17 @@ Iterable<int> naturalsTo(int n) sync* {
 }
 
 void main() {
-  Iterable<int> list = naturalsTo(1);
-  naturalsTo(2);
-  naturalsTo(3);
-  print(list);
+
+  print(naturalsDownFrom(8));
+
+
+
 }
+Iterable<int> naturalsDownFrom(int n) sync* {
+  if (n > 0) {
+    yield n;
+//    yield* naturalsDownFrom(n - 1);
+  yield* li;
+  }
+}
+List<int> li=[-1,-2,-3];

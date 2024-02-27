@@ -817,7 +817,7 @@ switch (row) {
  
  在向函数传递参数或定义函数形参时，可以使用尾随逗号。
 
-#### 4.1 命名参数
+#### 6.1 命名参数
 
 https://dart.cn/language/functions
 
@@ -855,7 +855,7 @@ void enableFlags({bool bold = false, bool hidden = false}) {...}
 const Scrollbar({super.key, required Widget child});
 ```
 
-#### 4.2 位置参数
+#### 6.2 位置参数
 
 基于该文档一贯的跳跃思维作风，文档中没有特别介绍和定义位置参数，可能觉得太简单了吧。但是我觉得应该指出一下。
 
@@ -887,7 +887,7 @@ enableFlags(bold: true, hidden: true,'bold and hidden',);
 void enableFlags({bool? bold=true, bool? hidden=false},String description,) {...}
 ```
 
-#### 4.3 可选位置参数
+#### 6.3 可选位置参数
 
 不管是位置参数还是命名参数，在调用时都必须传入值。而可选位置参数则可传也可不传。可选位置参数用方括号[]括起来，
 并且它们的默认值是null。
@@ -908,11 +908,11 @@ assert(say('Bob', 'Howdy', 'smoke signal') ==
 ```
 思考：如果同时有可选位置参数和命名参数，dart会不会造成混淆呢？我认定应该不会，我也不会去研究了，要相信dart设计者的智商。
 
-#### 4.4 main() 函数
+#### 6.4 main() 函数
 
 程序的入口函数，其实它定义了List<String>类型的可选参数。目前我使用的intellij idea无法点进去看main函数的定义代码。
 
-#### 4.5 Functions as first-class objects
+#### 6.5 Functions as first-class objects
 
 chrome翻译为“作为一流对象的功能”，我想应该是“作为一级对象的函数”。
 
@@ -948,7 +948,7 @@ assert(loudify('hello') == '!!! HELLO !!!');
 ```
 这样函数就是匿名的了。关于这个下小节会讲更多。
 
-#### 4.6 匿名函数(Anonymous functions)
+#### 6.6 匿名函数(Anonymous functions)
 
 匿名函数，有时也称为lambda或闭包。
 
@@ -959,7 +959,7 @@ assert(loudify('hello') == '!!! HELLO !!!');
 };
 ```
 
-##### 4.6.1 研究下List.map先
+##### 6.6.1 研究下List.map先
 
 后面的例子用到了List的map方法，所以先研究一下API，地址在这里： 
 
@@ -993,7 +993,7 @@ Iterable<T> map<T>(
 
 理解了API，我们使用map方法时就不能随便传一个函数，函数的参数的类型是List的元素类型E，函数的返回值类型是你想要的类型T。
 
-##### 4.6.2 使用示例
+##### 6.6.2 使用示例
 
 ```dart
 const list = ['apples', 'bananas', 'oranges'];
@@ -1025,13 +1025,13 @@ list
     .forEach((item) => print('$item: ${item.length}'));
 ```
 
-##### 4.6.3 变量作用域 (Lexical scope)
+##### 6.6.3 变量作用域 (Lexical scope)
 
 Lexical是词汇的意思，但是我觉得这里应该是变量作用域。
 
 和java一样，花括号里面的代码块包含的变量不会在它外面生效，但外面的可以在里面使用。
 
-##### 4.6.4 闭包（Lexical closures）
+##### 6.6.4 闭包（Lexical closures）
 
 如果看文档上的例子，你不会理解闭包。在网上找了一篇《深入理解 Dart Function & Closure》的文章，对我理解很有帮助，但解释得有点繁琐。
 不如看我三言两语解释透彻。
@@ -1073,12 +1073,12 @@ Function setDiscountToCal(double discount){
 现在是不是一目了然了呢？这里闭包是一个函数对象，即printCost这个函数，它可以访问其词法作用域中的变量discount，
 即使该函数main作用域中，也是如此。
 
-##### 4.6.5 一个Java程序员对闭包的思考
+##### 6.6.5 一个Java程序员对闭包的思考
 
 闭包现象存在是一个合乎设计原则的东西吗？我的回答是no。当我们想抽取一个函数放入工具集的时候，你会发现这个函数跟它的环境耦合了，
 无法成为一个纯函数。
 
-##### 4.6.6 函数的相等性
+##### 6.6.6 函数的相等性
 ```dart
 void foo() {} // A top-level function
 
@@ -1115,7 +1115,7 @@ void main() {
 ```
 不同实例的函数是不相等的。相等需要相同实例的同一个函数。
 
-##### 4.6.7 返回值
+##### 6.6.7 返回值
 
 所有函数都会返回一个值。如果未指定返回值，则该语句return null;将隐式附加到函数体中。
 
@@ -1125,23 +1125,57 @@ void main() {
   return ('something', 42);
 }
 ```
-##### 4.6.7 计数器(Generators)
+##### 6.6.8 计数器(Generators)
 当您需要惰性地生成一系列值时，请考虑使用生成器函数。Dart内置支持两种生成器函数:
 * 同步生成器:返回一个Iterable对象。
 * 异步生成器:返回一个流对象。
 
-要实现同步生成器函数，将函数体标记为sync*，并使用yield语句来传递值(类似于return):
+要实现同步生成器函数，将函数体标记为sync*，并使用yield语句来传递值:
 ```dart
 Iterable<int> naturalsTo(int n) sync* {
   int k = 0;
   while (k < n) yield k++;
 }
 ```
-要实现异步生成器函数，请将函数体标记为async*，并使用yield语句来传递值(类似于return):
+要实现异步生成器函数，请将函数体标记为async*，并使用yield语句来传递值:
 ```dart
 Stream<int> asynchronousNaturalsTo(int n) async* {
   int k = 0;
   while (k < n) yield k++;
 }
 ```
-官网的实例就这么简单，如果不解释估计没人知道它是干什么用的。
+官网的实例就这么简单，如果不解释估计没人知道它是干什么用的,不过解释也很简单：
+```dart
+void main() {
+  print(naturalsTo(4));//(0, 1, 2, 3)
+
+  print(naturalsTo(2)); // (0, 1)
+
+
+}
+```
+如果您的生成器是递归的，您可以通过使用以下方法来提高其性能yield*：
+```dart
+Iterable<int> naturalsDownFrom(int n) sync* {
+  if (n > 0) {
+    yield n;
+    yield* naturalsDownFrom(n - 1);
+  }
+}
+```
+yield关键字是专门为计数器设计的(因为我在文档的关键字yield上点击直接跳到了这里)，从已经研究过的内容看，
+它的作用是：把结果加入Iterable对象或流对象中。但是yield*似乎不是，因为yield* naturalsDownFrom(n - 1)这句代码如果按照这个理解，
+是把一个Iterable<int>加入Iterable<int>对象中，是不是合并结果的意思呢？我做个测试：
+```dart
+Iterable<int> naturalsDownFrom(int n) sync* {
+  if (n > 0) {
+    yield n;
+//    yield* naturalsDownFrom(n - 1);
+  yield* li;
+  }
+}
+List<int> li=[-1,-2,-3];
+```
+打印结果是：(8, -1, -2, -3)，证实了我的想法正确。
+
+它不同于yield，一个函数中可以有多个yield。
