@@ -1454,7 +1454,6 @@ assert在生产代码中将被忽略，并且不会评估参数。
 Dart is an object-oriented language with classes and mixin-based inheritance.
 Dart是一种面向对象的语言，具有类和基于混合的继承。
 
-
 Every object is an instance of a class, and all classes except Null descend from Object.
 每个对象都是一个类的实例，除了Null以外的所有类都继承自object。
 
@@ -1466,6 +1465,61 @@ Extension methods are a way to add functionality to a class without changing the
 
 Class modifiers allow you to control how libraries can subtype a class.
 类修饰符允许您控制库如何对类进行子类型化。
+```
 
+#### 9.1 使用类成员(Using class members)
 
+dart的函数取代了java中的方法。
+
+访问类成员时，用?.避免对象为空。
+
+#### 9.2 使用构造函数
+
+无需new关键字,用也可以。文档中使用了一个fromJson方法创建对象，不知道这个方法是不是继承自Object：
+```dart
+var p1 = Point(2, 2);
+var p2 = Point.fromJson({'x': 1, 'y': 2});
+```
+##### 9.2.1 常量构造函数
+
+有些类提供常量构造函数。要使用常量构造函数创建编译时常量，请将const关键字放在构造函数名称之前：
+```dart
+var p = const ImmutablePoint(2, 2);
+```
+构造两个相同的编译时常量会产生一个规范实例：
+```dart
+    ar a = const ImmutablePoint(1, 1);
+    var b = const ImmutablePoint(1, 1);
+    
+    assert(identical(a, b)); // They are the same instance!
+```
+在常量上下文中，您可以省略构造函数或文字之前的const 。
+省略前：
+```dart
+// Lots of const keywords here.
+const pointAndLine = const {
+  'point': const [const ImmutablePoint(0, 0)],
+  'line': const [const ImmutablePoint(1, 10), const ImmutablePoint(-2, 11)],
+};
+```
+省略后：
+```dart
+// Only one const, which establishes the constant context.
+const pointAndLine = {
+  'point': [ImmutablePoint(0, 0)],
+  'line': [ImmutablePoint(1, 10), ImmutablePoint(-2, 11)],
+};
+```
+如果常量构造函数位于常量上下文之外并且在没有const的情况下调用，它将创建一个非常量对象：
+```dart
+var a = const ImmutablePoint(1, 1); // Creates a constant
+var b = ImmutablePoint(1, 1); // Does NOT create a constant
+
+assert(!identical(a, b)); // NOT the same instance!
+```
+
+##### 9.2.2 获取对象的类型
+To get an object’s type at runtime, you can use the Object property runtimeType, which returns a Type object.
+```dart
+print('The type of a is ${a.runtimeType}');
 ```
