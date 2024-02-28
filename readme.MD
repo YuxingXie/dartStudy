@@ -1534,10 +1534,20 @@ class Point {
 ```
 所有实例变量都会生成隐式getter方法，非final实例变量和未初始化的late final实例变量也生成隐式setter方法。
 
-换句话说，final变量不生成隐式setter方法，因为final变量不能被重新赋值，这也是当然的。
+换句话说，final变量不生成隐式setter方法，因为final变量不能被重新赋值，这也是当然的，但late final可以重新赋值。
 
 至于late变量是什么，可以看看关键字一节。late 修饰符有两种用法：
 * 声明一个非空变量，但不在声明时初始化。
 * 延迟初始化一个变量。
 
 不过从文档看起来,late变量使用时是否被赋值是不保险的。
+
+If you initialize a non-late instance variable where it’s declared, the value is set when the instance is created, which is before the constructor and its initializer list execute.
+
+如果在声明的地方初始化非延迟实例变量，则在创建实例时设置该值，即在构造函数及其初始化列表执行之前。
+
+As a result, non-late instance variable initializers can’t access this.
+
+因此，非延迟实例变量初始化器不能访问this。
+
+初始化器（initializers）应该是指setter方法吧。
