@@ -1518,8 +1518,26 @@ var b = ImmutablePoint(1, 1); // Does NOT create a constant
 assert(!identical(a, b)); // NOT the same instance!
 ```
 
-##### 9.2.2 获取对象的类型
+#### 9.3 获取对象的类型
 To get an object’s type at runtime, you can use the Object property runtimeType, which returns a Type object.
 ```dart
 print('The type of a is ${a.runtimeType}');
 ```
+#### 9.4 实例变量(Instance variables)
+
+```dart
+class Point {
+  double? x; // Declare instance variable x, initially null.
+  double? y; // Declare y, initially null.
+  double z = 0; // Declare z, initially 0.
+}
+```
+所有实例变量都会生成隐式getter方法，非final实例变量和未初始化的late final实例变量也生成隐式setter方法。
+
+换句话说，final变量不生成隐式setter方法，因为final变量不能被重新赋值，这也是当然的。
+
+至于late变量是什么，可以看看关键字一节。late 修饰符有两种用法：
+* 声明一个非空变量，但不在声明时初始化。
+* 延迟初始化一个变量。
+
+不过从文档看起来,late变量使用时是否被赋值是不保险的。
