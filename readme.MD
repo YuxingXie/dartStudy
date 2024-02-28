@@ -1183,7 +1183,7 @@ yield它不同于return，一个函数中可以有多个yield。
 异步的Stream是啥先不研究了，碰到问题再说。
 
 ### 7.控制流
-
+控制流和模式结合很紧密，要先搞清模式这一章。
 
 #### 7.1 循环
 
@@ -1212,3 +1212,260 @@ candidates
 ```
 #### 7.2 条件
 
+##### 7.2.1 if case语句
+
+这个可以判断模式：
+```dart
+if (pair case [int x, int y]) return Point(x, y);
+```
+##### 7.2.1 switch语句
+case匹配值和模式。其实值也是一个常量模式。
+
+switch在case中一旦匹配就会在执行完case中的子句后跳到Switch块的最后，就是说它只会匹配一个case。
+类似于if...else if...else。
+
+可以用下划线“_”代替default:。default类似于else。
+
+可以给一组case命名一个label,并使用continue label跳到这组case中。这和java中给for一个标签类似，用continue label或break label跳过指定的循环。 
+
+```dart
+  int age=66;
+  String? x;
+  switch(age){
+    case(>0&&<3):
+      x='$age years old is baby' ;
+    case(>=3&&<=10):
+      x='$age years old is kid';
+    case(>10&&<18):
+      x='$age years old is teenage';
+    case(>18):
+      print('$age years old is adult,and ');
+      continue adult;
+   adult:
+    case(>=18&&<60):
+     x='$age years old is yong person';
+    case(>=60&&<150):
+      x='$age years old is old person';
+    case(>=150):
+      x='$age years old is not a person';
+  }
+  print(x);
+```
+上面的代码跟我的期待有出入哦。我期待在continue adult后进入>=60&&<150匹配的case，打印出66 years old is old person，
+然而打印的是66 years old is yong person。所以，continue adult进入adult case组后，不是和新的匹配进行and操作，
+而是和新的case进行or操作。所以只要跳到adult，会无条件进入第一个case,即程序判断为>18||(>=20&&<60)。
+
+
+##### 7.2.2 Switch表达式
+
+通俗说就是让整个switch语句获取一个值，可以赋值给另一变量，可以打印，可以作为返回值。但是语句直接用switch开头就不是switch表达式，
+而是switch语句。Switch表达式的核心是要返回一个值。
+
+
+```dart
+var x = switch (y) { ... };
+
+print(switch (x) { ... });
+
+return switch (x) { ... };
+```
+switch表达式跟switch语句比，可以简化一下写法，比如下面这个switch语句：
+```dart
+// Where slash, star, comma, semicolon, etc., are constant variables...
+switch (charCode) {
+  case slash || star || plus || minus: // Logical-or pattern
+    token = operator(charCode);
+  case comma || semicolon: // Logical-or pattern
+    token = punctuation(charCode);
+  case >= digit0 && <= digit9: // Relational and logical-and patterns
+    token = number();
+  default:
+    throw FormatException('Invalid');
+}
+```
+变成switch表达式后：
+```dart
+token = switch (charCode) {
+  slash || star || plus || minus => operator(charCode),
+  comma || semicolon => punctuation(charCode),
+  >= digit0 && <= digit9 => number(),
+  _ => throw FormatException('Invalid')
+};
+```
+case关键字省略了，直接写模式，后面不带冒号(":")了。因为要返回一个值，变成了箭头语法。多个case之间用逗号分隔。
+另外，所有的case要包含所有的情况，甚至连异常都要包括，异常写在defalut块里，而且必须用“_”写法
+
+我的代码改为switch表达式如下：
+```dart
+  int age=66;
+  String? x;
+  x=switch(age){
+    >0=&&<3=>
+      '$age years old is baby' ,
+    >=3&&<=10
+      =>'$age years old is kid',
+    (>10&&<18)
+  =>'$age years old is teenage',
+    (>=18&&<60)
+  =>'$age years old is yong person',
+    (>=60&&<150)
+  =>'$age years old is old person',
+    (>=150)
+  =>'$age years old is not a person',
+  _ => throw FormatException('Invalid')
+  };
+  print(x);
+
+```
+##### 7.2.3 Switch表达式的详尽性检查
+
+前面说过，所有的case要包含所有的情况。这是用我自己的话说的，意思也是详尽性检查的意思。
+这不是我提前学习的，我知道这个是因为编译器给了我错误提示，我不写_ => throw FormatException('Invalid')这句，提示如下：
+“The type 'int' is not exhaustively matched by the switch cases since it doesn't match 'int()'.”。
+
+还有，上面的age我填写一个负数，编译时错误就不存在了。但是会产生运行时错误,不过这个错误时我主动抛出的。我完全可以改为_ => 'bad age format'。
+
+枚举如果漏了一条dart是知道的。还有一种用sealed修饰符修饰的类，它有确定数量的子类，也可以被详尽检查。
+
+sealed类例子：
+```dart
+sealed class Shape {}
+
+class Square implements Shape {
+  final double length;
+  Square(this.length);
+}
+
+class Circle implements Shape {
+  final double radius;
+  Circle(this.radius);
+}
+
+double calculateArea(Shape shape) => switch (shape) {
+      Square(length: var l) => l * l,
+      Circle(radius: var r) => math.pi * r * r
+    };
+```
+
+Square(length: var l)和Circle(radius: var r)应该是类的模式吧。
+
+##### 7.2.3 Guard clause
+
+翻译为保护条款还是保护从句呢？从句吧。
+
+```dart
+// Switch statement:
+switch (something) {
+  case somePattern when some || boolean || expression:
+    //             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Guard clause.
+    body;
+}
+
+// Switch expression:
+var value = switch (something) {
+  somePattern when some || boolean || expression => body,
+  //               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Guard clause.
+}
+
+// If-case statement:
+if (something case somePattern when some || boolean || expression) {
+  //                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Guard clause.
+  body;
+}
+```
+作用是不是相当于逻辑与操作呢？应该是吧，没道理不是，等碰到应用场景再说。case只能匹配模式，加上when就可以加入任何布尔表达式了。
+
+### 8.错误处理
+
+知识点不多，理解不难就随便记录下。
+
+#### 8.1 异常
+
+除了抛出异常，您还可以抛出任意对象：
+```dart
+  throw 'Out of llamas!';
+```
+
+因为抛出异常是一个表达式，所以您可以在 => 语句以及任何其他允许表达式的地方抛出异常：
+```dart
+void distanceTo(Point other) => throw UnimplementedError();
+```
+用on捕获异常(严格说on只是知道异常类型，后面的catch才叫真正的捕获吧)：
+```dart
+try {
+  breedMoreLlamas();
+} on OutOfLlamasException {
+  buyMoreLlamas();
+}
+```
+
+用catch捕获异常的实例：
+```dart
+try {
+  breedMoreLlamas();
+} on OutOfLlamasException {
+  // A specific exception,知道确切的异常类型
+  buyMoreLlamas();
+} on Exception catch (e) {
+  // Anything else that is an exception，不太确定异常类型，但catch(e)可以获得异常实例
+  print('Unknown exception: $e');
+} catch (e) {
+  // No specified type, handles all。对什么异常一无所知的时候
+  print('Something really unknown: $e');
+}
+```
+catch可以带两个参数，第一个是异常实例，第二个是堆栈跟踪对象(a StackTrace object)：
+```dart
+catch (e, s) {
+  print('Exception details:\n $e');
+  print('Stack trace:\n $s');
+}
+```
+在catch块中使用rethrow关键字可重新抛出异常：
+```dart
+    catch (e) {
+        print('misbehave() partially handled ${e.runtimeType}.');
+        rethrow; // Allow callers to see the exception.
+    }
+```
+为了确保无论是否抛出异常，某些代码都会运行，请使用finally子句。
+
+#### 8.2 断言
+
+断言语法：
+```dart
+assert(<condition>, <optionalMessage>);
+```
+
+断言失败引发异常(an AssertionError)，程序中止。
+
+断言到底什么时候起作用？这取决于您使用的工具和框架：
+
+* Flutter 在调试模式下启用断言。
+* 仅限开发的工具（例如webdev serve 通常默认启用断言）。
+* 一些工具，例如dart run和dart compile js 支持通过命令行标志进行断言：--enable-asserts。
+
+assert在生产代码中将被忽略，并且不会评估参数。
+
+### 9. 类
+
+终于要学真正的核心内容了。
+```text
+Dart is an object-oriented language with classes and mixin-based inheritance.
+Dart是一种面向对象的语言，具有类和基于混合的继承。
+
+
+Every object is an instance of a class, and all classes except Null descend from Object.
+每个对象都是一个类的实例，除了Null以外的所有类都继承自object。
+
+Mixin-based inheritance means that although every class (except for the top class, Object?) has exactly one superclass, a class body can be reused in multiple class hierarchies.
+基于混合的继承意味着，尽管每个类(除了顶级类，Object?)只有一个超类，但类体可以在多个类层次结构中重用。
+
+Extension methods are a way to add functionality to a class without changing the class or creating a subclass.
+扩展方法是一种在不改变类或创建子类的情况下向类添加功能的方法。
+
+Class modifiers allow you to control how libraries can subtype a class.
+类修饰符允许您控制库如何对类进行子类型化。
+
+
+```
