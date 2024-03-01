@@ -1525,6 +1525,12 @@ print('The type of a is ${a.runtimeType}');
 ```
 #### 9.4 实例变量(Instance variables)
 
+实例就是通过类的构造函数生成的这个类的一个“产品”，或者说对象什么的吧，我表达能力不好，你能理解就好。
+
+实例变量就是给这个类的一个个实例单独使用的变量。与实例变量对应的，在java中叫类变量，即静态变量，在dart中还没研究到。
+
+不过java中的实例变量不建议直接访问，它会被设置为私有(private)，然后通过访问器getter方法获得。
+
 ```dart
 class Point {
   double? x; // Declare instance variable x, initially null.
@@ -1542,7 +1548,8 @@ class Point {
 
 不过从文档看起来,late变量使用时是否被赋值是不保险的。
 
-If you initialize a non-late instance variable where it’s declared, the value is set when the instance is created, which is before the constructor and its initializer list execute.
+If you initialize a non-late instance variable where it’s declared, the value is set when the instance is created,
+which is before the constructor and its initializer list execute.
 
 如果在声明的地方初始化非延迟实例变量，则在创建实例时设置该值，即在构造函数及其初始化列表执行之前。
 
@@ -1550,4 +1557,54 @@ As a result, non-late instance variable initializers can’t access this.
 
 因此，非延迟实例变量初始化器不能访问this。
 
-初始化器（initializers）应该是指setter方法吧。
+初始化器（initializers）是指构造方法吗？我理解的是在构造方法中不能使用this来访问本实例。这在java中是允许的，所以为了证实我的想法我写了个例子：
+```dart
+class A{
+  int b = 100;
+  int a=10;
+  A(){
+    this.b=this.a;
+  }
+
+}
+main(){
+  A a = A();
+  print(a.b);
+}
+
+```
+程序没有错误而且也是可以打印出10的，所以只能是initializer不是构造函数，constructor才是。
+
+下面是java的一个带参数的构造函数的写法：
+```java
+public class A {
+  private int a;
+  public A(){}//java的无参构造函数
+  public A(int a){//这是java的带参数的构造函数
+    this.a=a;
+  }
+
+}
+```
+在dart中，我们的称呼和语法都要做点改变，当然dart比java简化了，例：
+```dart
+class A {
+  int a;//dart中似乎不习惯加private在实例上，不过本质上实例访问这个成员隐式调用getter方法
+  public A();//方法体都省了
+  public A(this.a);//无需手动赋值，简化了很多
+
+
+}
+```
+文档中也有个例子。ProfileMark.unnamed() : name = '';说实在的，这一句完全看不懂：
+```dart
+class ProfileMark {
+  final String name;
+  final DateTime start = DateTime.now();
+
+  ProfileMark(this.name);
+  ProfileMark.unnamed() : name = '';
+}
+```
+
+如果你定义了一个late final，你可以像使用非final变量一样赋值超过一次，编译器并不报错，但是会产生运行时错误。
