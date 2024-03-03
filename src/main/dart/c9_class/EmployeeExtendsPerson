@@ -1,0 +1,40 @@
+class Person {
+  String? firstName;
+//  Person(Map data){}
+//  Person(){}
+  Person.fromJson(Map data) {
+    print('in Person');
+  }
+}
+
+class Employee extends Person {
+  // Person does not have a default constructor;
+  // you must call super.fromJson().
+  Employee.fromJsons(super.data) : super.fromJson() {
+    print('in Employee');
+    print(data);
+  }
+//  Employee(super.data);
+//  Employee(super.data){
+//    super(data);
+//  super.fromJson(data);
+//    Person.fromJson(data);
+//  }
+//  Person.fromJson(super.data);
+//  fromJson(super.data);
+//  Person.fromJson(data);
+//  Employee.fromJson(data);
+//  Employee.fromJson(super.data);
+}
+
+void main() {
+  var employee = Employee.fromJsons({});
+//  print(employee);
+  // Prints:
+  // in Person
+  // in Employee
+  // Instance of 'Employee'
+
+//  var emp = Employee();
+//  print(emp.firstName);
+}

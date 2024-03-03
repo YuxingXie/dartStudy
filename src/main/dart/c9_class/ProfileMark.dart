@@ -14,4 +14,5 @@ main(){
 
   ProfileMark p = ProfileMark('sss');
   print(p.b);
+//  ProfileMark.whatEver();
 }

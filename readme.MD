@@ -2,7 +2,7 @@
 
 这不是一个教程，教程在这里 https://dart.cn/language
 
-本研究项目的章节和教程一致。
+本研究项目的章节和教程一致。学习研究时对比java特性比较多。
 
 因为dart的官方教程过于简陋也比较跳跃，而且大多是英文，所以在这里把重要一些的概念和知识点弄清楚。
 
@@ -1608,3 +1608,189 @@ class ProfileMark {
 ```
 
 如果你定义了一个late final，你可以像使用非final变量一样赋值超过一次，编译器并不报错，但是会产生运行时错误。
+
+#### 9.5 隐式接口
+
+为什么叫隐式接口呢？其实每个类都隐式包含一个接口。
+
+```dart
+// A person. The implicit interface contains greet().
+class Person {
+  // In the interface, but visible only in this library.
+  //子类必须要实现它的getter方法
+  final String _name;
+
+  // Not in the interface, since this is a constructor.
+  Person(this._name);
+
+  // In the interface.
+  //方法体并不是方法的默认实现，而是当它作为一个类而不是接口时用的
+  String greet(String who) => 'Hello, $who. I am $_name.';
+}
+
+// An implementation of the Person interface.
+class Impostor implements Person {
+  //实现接口定义的_name属性的getter方法
+  //关键字get表示getter方法
+  String get _name => '';
+
+  //实现类必须重写接口的方法
+  String greet(String who) => 'Hi $who. Do you know who I am?';
+}
+
+String greetBob(Person person) => person.greet('Bob');
+
+void main() {
+  print(greetBob(Person('Kathy')));
+  print(greetBob(Impostor()));
+}
+```
+
+#### 9.6 类变量和方法
+
+大致和java没什么区别
+
+#### 9.7 构造方法
+
+初始化形参：
+```dart
+class Point {
+  final double x;
+  final double y;
+
+  Point(this.x, this.y);
+  // Sets the x and y instance variables
+  // before the constructor body runs.
+}
+```
+构造函数不会被继承。
+
+
+##### 命名构造函数
+
+命名构造函数，就是前面没搞懂的那句ProfileMark.unnamed() : name = '';就是命名构造函数。
+冒号后面不能是带花括号语句块，不能有多个分号，就是说只能是一句代码，可以用逗号分隔给多个实例变量赋值。
+```dart
+const double xOrigin = 0;
+const double yOrigin = 0;
+
+class Point {
+  final double x;
+  final double y;
+ //这个构造函数的参数列表应该就是是前面提到的初始化列表吧,在构造函数主体执行前它就初始化了实例变量。
+  Point(this.x, this.y);
+
+  // Named constructor
+  Point.origin()
+      : x = xOrigin,
+        y = yOrigin;
+}
+```
+超类的构造函数和命名构造函数都不会被子类继承。
+
+
+##### 调用非默认超类构造函数
+```dart
+class Person {
+  String? firstName;
+
+  Person.fromJson(Map data) {
+    print('in Person');
+  }
+}
+
+class Employee extends Person {
+  // Person does not have a default constructor;
+  // you must call super.fromJson().
+  Employee.fromJson(super.data) : super.fromJson() {
+    print('in Employee');
+  }
+}
+
+void main() {
+  var employee = Employee.fromJson({});
+  print(employee);
+  // Prints:
+  // in Person
+  // in Employee
+  // Instance of 'Employee'
+}
+
+```
+问题在下面这句不好懂：
+```dart
+  Employee.fromJson(super.data) : super.fromJson() {
+    print('in Employee');
+  }
+```
+在java中，一个类如果不定义任何构造函数，是默认存在一个无参构造函数的。但是如果类提供了一个或多个有参构造函数，那个默认的构造函数就不存在了。
+如果需要无参构造函数，则要显示的定义出来。就是说构造函数要么不写(存在一个默认无参的)，要么全写。
+当子类继承这个类时，如果父类没有提供任何构造函数(实际上存在一个默认构造函数)。这个时候，子类也可以不提供构造函数。子类在实例化时，
+会调用父类的默认构造函数同时实例化出一个父类对象。但当父类只定义了一个或多个有参构造函数，并未定义一个无参构造函数，
+那么java强制要求子类提供一个构造函数，并用super(...)来调用父类的构造函数，否则子类不知道如何实例化一个父类对象。
+
+下面是java代码示例：
+```java
+//Person.java定义了两个构造函数，没有无参构造函数
+public class Person {
+    private String firstName;
+    private String lastName;
+    public Person(String firstName) {
+        this.firstName = firstName;
+    }
+    public Person(String firstName,String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+}
+//因为父类存在多个构造函数，所以Employee.java必须显式调用父类的构造函数来实例化一个父类对象
+public class Employee extends Person{
+    public Employee(String firstName) {
+        super(firstName,"Mr. ");
+    }
+}
+
+```
+
+这里插一个小tip，即dart如何定义和调用父类的带参非命名构造函数，和java写法不一样，这个这么重要的知识点在文档中根本不提，太跳跃了。
+下面的代码是我构造函数的参考初始化列表的写法自己套出来的，真的无语。
+
+```dart
+//这是在子类中定义和调用父类构造方法的dart写法，比java简化了
+Employee(super.data);
+```
+
+dart和java类似，不同的是dart可以使用命名构造函数，即不使用类名而是使用方法名的一种方式：
+```dart
+//这是dart的命名构造函数，和java一样，如果存在其它构造函数，默认构造函数就不存在了，除非显式的定义出来。
+//在这个例子里，Person只有一个这一个构造函数，而且是命名构造函数
+Person.fromJson(Map data) {
+    print('in Person');
+  }
+```
+那么这个时候在子类中，dart如何定义一个构造函数来调用父类构造函数呢？
+
+假设现在我按照java的语法来写dart中的Employee子类，像这样：
+```dart
+class Employee extends Person {
+  //下面不行，Error: The superclass, 'Person', has no unnamed constructor that takes no arguments.
+  //从报错信息来看，这是表示父类中没有未命名构造函数，显然这是dart想调用父类的未命名构造函数但却找不到,
+  //所以我要想办法去调用父类中的fromJson方法。
+  Employee(super.data);
+}
+```
+在dart中调用父类的命名构造函数有自己的语法规定，现在再看下前面那段看不懂的代码，我在注释中解释了，现在应该很清楚了：
+```dart
+//冒号前面的这段Employee.fromJson(super.data)，表示子类Employee也定义了一个fromJson命名构造函数也叫fromJson，
+// 当然也可以是别的名字，并且传入父类构造方法需要的参数类型和形参名称(super.data)。
+//冒号后面super.fromJson() {...}表示重写父类的构造方法。
+  Employee.fromJson(super.data) : super.fromJson() {
+    print('in Employee');//这里重写了父类的fromJson方法
+    //我试着加了下面这句,是报错的，
+    ////Error: The getter 'data' isn't defined for the class 'Employee'.
+    // 它去找Employee的成员data去了，明显不是我设想的要访问传入的变量。
+    // 那么如何在子类中访问传入的这个参数呢？希望后面有提及。
+    print(data);
+
+  }
+```
