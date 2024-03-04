@@ -1901,3 +1901,14 @@ class Vector3d extends Vector2d {
   Vector3d.yzPlane({required super.y, required this.z}) : super.named(x: 0);
 }
 ```
+
+学到这里我猛的浮现了一幕，这种冒号的写法似乎在哪里见过。仔细想想似乎是c#和c++中有这种语法。
+
+几个名词提一下，是我本人的翻译和理解，不是标准答案：
+* super-initializer：父类初始化器，像Vector3d.yzPlane({required super.y, required this.z})这句代码是用来初始化父类的值的
+* super-constructor：父类构造函数，Vector2d.named就是Vector3d的父类构造函数
+
+搞清这两个概念是为了理解这句话：
+
+Super-initializer parameters cannot be positional if the super-constructor invocation already has positional arguments,
+but they can always be named.
