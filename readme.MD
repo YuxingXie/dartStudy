@@ -2038,3 +2038,66 @@ void main() {
 }
 ```
 
+##### Redirecting constructors
+
+重定向构造函数，就是同一个类中构造函数调用另一个构造函数，可以使用在冒号分割的那种命名构造函数中。
+重定向构造函数的主体为空，构造函数调用(使用this而不是类名)出现在冒号(:)之后。
+```dart
+class Point {
+  double x, y;
+
+  // The main constructor for this class.
+  Point(this.x, this.y);
+
+  // Delegates to the main constructor.
+  Point.alongXAxis(double x) : this(x, 0);
+}
+```
+为什么alongXAxis不能有方法体？这是语法规定的，暂时不理解有什么玄机，等领悟了在后面领悟到的地方解释。
+
+##### Constant constructors
+
+常量构造器。
+
+If your class produces objects that never change, you can make these objects compile-time constants.
+
+如果你的类产生的对象永远不会改变，你可以让这些对象成为编译时常量。
+
+To do this, define a const constructor and make sure that all instance variables are final.
+
+为此，定义一个const构造函数，并确保所有实例变量都是final。
+
+```dart
+class ImmutablePoint {
+  static const ImmutablePoint origin = ImmutablePoint(0, 0);
+
+  final double x, y;
+
+  const ImmutablePoint(this.x, this.y);
+}
+```
+这样，我们就可以使用一个常量来接收实例化产生的实例：
+```dart
+main(){
+  const ip1 = ImmutablePoint(0,0);
+  const ip4 = ImmutablePoint(0,0);
+  var ip5 = ImmutablePoint(0,0);
+  print('ip1 x=${ip1.x},ip4 x=${ip4.x},ip1=ip4 is ${ip1==ip4},ip1=ip5 is ${ip1==ip5}');
+}
+```
+打印出“ip1 x=0.0,ip4 x=0.0,ip1=ip4 is true,ip1=ip5 is false”，这个结果说明用const接收的变量，只要参数想等就是同一个实例。
+而使用var接收的实例则是另一个不同的实例。
+
+##### Factory constructors
+
+Use the factory keyword when implementing a constructor that doesn’t always create a new instance of its class.
+
+当实现不总是创建其类的新实例的构造函数时，使用factory关键字。
+
+For example, a factory constructor might return an instance from a cache, or it might return an instance of a subtype.
+
+例如，工厂构造函数可能从缓存返回实例，也可能返回子类型的实例。
+
+Another use case for factory constructors is initializing a final variable using logic that can’t be handled in the initializer list.
+
+工厂构造函数的另一个用例是使用初始化列表中无法处理的逻辑初始化final变量。
