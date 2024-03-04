@@ -12,8 +12,13 @@ class Point {
   // Named constructor
   Point.origin()
       : x = xOrigin,
-        y = yOrigin;
+        y = yOrigin{
+
+    }
 }
 main(){
   Point(2,3);
+  var aJson = {"a":null,"b":"def"};
+  print(aJson["a"]);
+//  print(aJson["a"]!);
 }

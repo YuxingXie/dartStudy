@@ -13,12 +13,17 @@ class Vector3d extends Vector2d {
   }
   Vector3d.xyzPlane(super.a,super.b,double c):super.named() {
     this.z=c;
-    print('z:$z');
+    print('invoke in sub,z:$z');
+  }
+  Vector3d.xyzPlaneAsJava(double a,double b,double c):super.named(a,b) {
+    this.z=c;
+    print('invoke in sub,z:$z,x=$x,y=$y');
   }
 }
 
 main(){
-  Vector3d v1 = Vector3d.xyzPlane(11,2,3);
+//  Vector3d v1 = Vector3d.xyzPlane(11,2,3);
+  Vector3d v1 = Vector3d.xyzPlaneAsJava(11,2,3);
   print(v1.x);
   print(v1.y);
   print(v1.z);

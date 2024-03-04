@@ -1944,12 +1944,97 @@ main(){
 因为是子类是调用父类的named方法，而named方法是定义了两个位置参数Vector2d.named(this.x,this.y)。所以该构造函数的第一个参数就是为了给x属性赋值的，
 第二个给y赋值。在子类定义自己的构造函数xyPlane时，同时利用初始化列表给父类赋值。因为父类构造函数定义的参数是位置参数，那么这个初始化列表就会按照位置顺序赋值。
 Vector3d.xyPlane(super.y,super.x,this.z)这段代码中，它的第一第二个参数已经被父类的构造函数固定了，y,x这几个变量名只不过是形式参数而已，你换成啥变量名都可以。
-但是第三个就必须是z了吗？也不是，我们可以这样写：
+但是第三个就必须是this.z了吗？也不是，我们可以这样写：
 ```dart
-    //另一个命名构造函数
+class Vector2d {
+  double x=0;
+  double y=0;
+  Vector2d.named(this.x,this.y){
+    print('invoke in super');
+  }
+}
+class Vector3d extends Vector2d {
+  double z=0;
+  //第一个参数是super.y，是表示是给父类的y赋值吗？
+  Vector3d.xyPlane(super.y,super.x,this.z):super.named(){
+    print('x:$x,y:$y,z:$z');
+  }
   Vector3d.xyzPlane(super.a,super.b,double c):super.named() {
     this.z=c;
+    print('invoke in sub,z:$z');
+  }
+}
+
+main(){
+  Vector3d v1 = Vector3d.xyzPlane(11,2,3);
+  print(v1.x);
+  print(v1.y);
+  print(v1.z);
+//打印
+//invoke in super
+//invoke in sub,z:3.0
+//11.0
+//2.0
+//3.0
+}
+```
+这里看到打印invoke in super后再打印invoke in sub,z:3.0，表示父类和子类的构造函数都执行了，所以子类构造函数的方法体并不是重写父类构造函数，
+而是自己拥有的这个构造函数的方法体。
+
+我后来又突发奇想，也忘了是出于什么目的写的，似乎是为了模仿java风格写的，意外的是下面的构造方法的写法也是OK的：
+```dart
+  Vector3d.xyzPlaneAsJava(double a,double b,double c):super.named(a,b) {
+    this.z=c;
+    print('invoke in sub,z:$z,x=$x,y=$y');
   }
 ```
-。也就是说xyPlane这个构造函数的形参的顺序是先要满足父类构造函数的要求。
+通过上面这段xyzPlaneAsJava我发现了不少玄机，不过又不好用语言表达，可能是目前掌握的dart术语不够，大家先自己领会吧。
+
+xyPlane这个构造函数的形参的顺序是先要满足父类构造函数的要求，父类构造函数如果定义了位置参数，那就先要满足父类的要求先传入父类的初始化参数，剩下的位置可以留给自己用。
+
+##### Initializer list
+
+初始化器列表,原来教程还有专门的章节介绍，我感觉在上一节都研究透了。看看还有什么新东西可研究。
+
+```dart
+// Initializer list sets instance variables before
+// the constructor body runs.
+Point.fromJson(Map<String, double> json)
+    : x = json['x']!,
+      y = json['y']! {
+  print('In Point.fromJson(): ($x, $y)');
+}
+```
+上面这段是构造函数的另一种写法，这个冒号和前面子类命名构造函数调用父类命名构造函数使用的冒号不是一回事，它是给命名构造函数函数执行前运行一段赋值语句。
+实例中Point的x成员变量被赋予json中x下标的值，后面这个叹号(!)是非空断言，如果被赋值为null则会抛出异常。
+
+下面是只做非空断言的写法，仅在开发阶段生效：
+```dart
+Point.withAssert(this.x, this.y) : assert(x >= 0) {
+  print('In Point.withAssert(): ($x, $y)');
+}
+```
+
+还有就是可以在初始化器列表初始化常量，所以常量实例属性可以在声明是先不赋值，延迟到在初始化器中赋值：
+```dart
+import 'dart:math';
+
+class Point {
+  final double x;
+  final double y;
+  final double distanceFromOrigin;
+
+  Point(double x, double y)
+      : x = x,
+        y = y,
+        distanceFromOrigin = sqrt(x * x + y * y);
+  //实际上这个构造函数可以更简化一点像下面这样：
+  //Point(this.x,this.y):distanceFromOrigin = sqrt(x * x + y * y);
+}
+
+void main() {
+  var p = Point(2, 3);
+  print(p.distanceFromOrigin);
+}
+```
 
