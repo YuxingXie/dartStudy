@@ -1,6 +1,7 @@
 ## dart入门
 
-这不是一个教程，教程在这里 https://dart.cn/language
+这不是一个纯粹的教程，这是我学习dart时记录下来的要点或难理解的知识点，作为笔记使用。
+大家可以综合参考官方教程和我的学习笔记作为学习资料，官方教程在这里 https://dart.cn/language
 
 本研究项目的章节和教程一致。学习研究时对比java特性比较多。
 
@@ -1783,14 +1784,120 @@ class Employee extends Person {
 ```dart
 //冒号前面的这段Employee.fromJson(super.data)，表示子类Employee也定义了一个fromJson命名构造函数也叫fromJson，
 // 当然也可以是别的名字，并且传入父类构造方法需要的参数类型和形参名称(super.data)。
-//冒号后面super.fromJson() {...}表示重写父类的构造方法。
+//冒号后面super.fromJson() {...}这一句蛮有讲究的，
+// super.fromJson()这一段表示调用父类的构造方法，而花括号内是重写父类的构造方法。
+//花括号是可以省略的，表示不重写父类的构造方法。
+// 不过super.fromJson()为什么没有参数呢？
   Employee.fromJson(super.data) : super.fromJson() {
     print('in Employee');//这里重写了父类的fromJson方法
     //我试着加了下面这句,是报错的，
     ////Error: The getter 'data' isn't defined for the class 'Employee'.
     // 它去找Employee的成员data去了，明显不是我设想的要访问传入的变量。
     // 那么如何在子类中访问传入的这个参数呢？希望后面有提及。
-    print(data);
+    print(data);//报错
 
   }
+```
+上面是Employee也定义了一个fromJson命名构造函数，如果不想定义命名构造函数而是想定义非命名构造函数，应该这样写：
+
+* 1.Employee定义无参构造函数
+```dart
+  Employee():super.fromJson({}){
+    print('in Employee');
+  }
+```
+
+* 2.Employee定义一个参数的参构造函数，并且参数传入父类中：
+
+```dart
+  Employee(super.data):super.fromJson(){
+    print('in Employee');
+  }
+```
+* 3.Employee定义一个参数的参构造函数，并且参数不传入父类中：
+```dart
+  Employee(Map data):super.fromJson({}){
+    print('in Employee');
+  }
+```
+* 4.Employee定义2个参数的参构造函数，并且参数不传入父类中：
+```dart
+  Employee(Map data,String y):super.fromJson({}){
+    print(y);
+  }
+```
+有意思的是，上面4种情况单独使用都是OK的，但4个随便组合放在一起，即定义多个构造方法，则报错：
+ Error: 'Employee' is already declared in this scope.
+ 这个问题暂时没有头绪，继续研究下去看看。
+
+##### Super parameters
+
+我把它翻译为：超类参数。
+
+我们之前看到过下面这样的构造函数：
+```dart
+Point(this.x, this.y);
+```
+如果用java写类似的代码，应该是这样：
+```java
+public class Point{
+    private int x;
+    private int y;
+    public Point(int x,int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```
+dart中的构造函数的参数类型，赋值语句都省略了。这种省略并不引起歧义，this.x表示这是给类实例属性x赋值，
+this.y给属性y赋值，所以数据类型可以不指定，赋值语句也可以省略。
+
+实际上，如果需要我们可以给该构造函数加上方法体：
+```dart
+  Point(this.x, this.y){
+    print('x:$x,y:$y');
+  }
+
+```
+
+与此类似的，当一个类继承另一个类，比如叫Vector3d的类继承自Vector2d，在Vector2d中，
+我们需要在Vector3d的构造函数中调用Vector2d的构造函数，
+则可以用如下的示例代码：
+```dart
+class Vector2d {
+  final double x;
+  final double y;
+
+  Vector2d(this.x, this.y);
+}
+
+class Vector3d extends Vector2d {
+  final double z;
+
+  // Forward the x and y parameters to the default super constructor like:
+  // Vector3d(final double x, final double y, this.z) : super(x, y);
+  Vector3d(super.x, super.y, this.z);
+}
+```
+super.x, super.y表示这两个参数是传递给父类并赋值的，而this.z表示这是传递给自己的z属性的。
+super.x, super.y就叫super parameters。
+
+下面是父类使用命名构造函数加命名参数定义构造函数的方式，注意子类传递构造函数的参数的方式：
+```dart
+class Vector2d {
+  // ...
+
+  Vector2d.named({required this.x, required this.y});
+}
+
+class Vector3d extends Vector2d {
+  // ...
+
+  // Forward the y parameter to the named super constructor like:
+  // Vector3d.yzPlane({required double y, required this.z})
+  //       : super.named(x: 0, y: y);
+  //父类的x和y在子类定义的命名构造函数yzPlane用关键字super.x,super.y传递，
+  // 而需要的x则在调用冒号右边的super.named(x: 0)调用时传入
+  Vector3d.yzPlane({required super.y, required this.z}) : super.named(x: 0);
+}
 ```

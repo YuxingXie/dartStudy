@@ -10,10 +10,10 @@ class Person {
 class Employee extends Person {
   // Person does not have a default constructor;
   // you must call super.fromJson().
-  Employee.fromJsons(super.data) : super.fromJson() {
-    print('in Employee');
-    print(data);
-  }
+//  Employee.fromJsons(super.data) : super.fromJson() {
+//    print('in Employee');
+//    print(data);
+//  }
 //  Employee(super.data);
 //  Employee(super.data){
 //    super(data);
@@ -25,10 +25,29 @@ class Employee extends Person {
 //  Person.fromJson(data);
 //  Employee.fromJson(data);
 //  Employee.fromJson(super.data);
+//  Employee():super.fromJson({});//不重写
+//  Employee():super.fromJson({}){
+//    print('in Employee');
+//  }
+//  Employee(super.data):super.fromJson(){
+//    print('in Employee');
+//  }
+//  Employee(Map data):super.fromJson({}){
+//    print('in Employee');
+//  }
+//  Employee(Map data,String y):super.fromJson({}){
+//    print(y);
+//  }
+}
+//  Employee(String y):super.fromJson(){
+//    print(y);
+//  }
 }
 
 void main() {
-  var employee = Employee.fromJsons({});
+  var employee = Employee('bbb',{});
+//  var employee = Employee.fromJsons({});
+//  var e2 = Employee({});
 //  print(employee);
   // Prints:
   // in Person

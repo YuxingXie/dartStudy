@@ -5,10 +5,15 @@ class Point {
   final double x;
   final double y;
 
-  Point(this.x, this.y);
+  Point(this.x, this.y){
+    print('x:$x,y:$y');
+  }
 
   // Named constructor
   Point.origin()
       : x = xOrigin,
         y = yOrigin;
+}
+main(){
+  Point(2,3);
 }
