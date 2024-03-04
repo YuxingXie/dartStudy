@@ -1667,7 +1667,7 @@ class Point {
 构造函数不会被继承。
 
 
-##### 命名构造函数
+##### 9.7.1 命名构造函数
 
 命名构造函数，就是前面没搞懂的那句ProfileMark.unnamed() : name = '';就是命名构造函数。
 冒号后面不能是带花括号语句块，不能有多个分号，就是说只能是一句代码，可以用逗号分隔给多个实例变量赋值。
@@ -1690,7 +1690,7 @@ class Point {
 超类的构造函数和命名构造函数都不会被子类继承。
 
 
-##### 调用非默认超类构造函数
+##### 9.7.2 调用非默认超类构造函数
 ```dart
 class Person {
   String? firstName;
@@ -1830,7 +1830,7 @@ class Employee extends Person {
  Error: 'Employee' is already declared in this scope.
  这个问题暂时没有头绪，继续研究下去看看。
 
-##### Super parameters
+##### 9.7.3 Super parameters
 
 我把它翻译为：超类参数。
 
@@ -1992,7 +1992,7 @@ main(){
 
 xyPlane这个构造函数的形参的顺序是先要满足父类构造函数的要求，父类构造函数如果定义了位置参数，那就先要满足父类的要求先传入父类的初始化参数，剩下的位置可以留给自己用。
 
-##### Initializer list
+##### 9.7.4 Initializer list
 
 初始化器列表,原来教程还有专门的章节介绍，我感觉在上一节都研究透了。看看还有什么新东西可研究。
 
@@ -2038,7 +2038,7 @@ void main() {
 }
 ```
 
-##### Redirecting constructors
+##### 9.7.5 Redirecting constructors
 
 重定向构造函数，就是同一个类中构造函数调用另一个构造函数，可以使用在冒号分割的那种命名构造函数中。
 重定向构造函数的主体为空，构造函数调用(使用this而不是类名)出现在冒号(:)之后。
@@ -2055,7 +2055,7 @@ class Point {
 ```
 为什么alongXAxis不能有方法体？这是语法规定的，暂时不理解有什么玄机，等领悟了在后面领悟到的地方解释。
 
-##### Constant constructors
+##### 9.7.6 Constant constructors
 
 常量构造器。
 
@@ -2088,7 +2088,9 @@ main(){
 打印出“ip1 x=0.0,ip4 x=0.0,ip1=ip4 is true,ip1=ip5 is false”，这个结果说明用const接收的变量，只要参数想等就是同一个实例。
 而使用var接收的实例则是另一个不同的实例。
 
-##### Factory constructors
+##### 9.7.7 Factory constructors
+
+这小节终于不用动脑子研究了，直接翻译即可。
 
 Use the factory keyword when implementing a constructor that doesn’t always create a new instance of its class.
 
@@ -2101,3 +2103,46 @@ For example, a factory constructor might return an instance from a cache, or it 
 Another use case for factory constructors is initializing a final variable using logic that can’t be handled in the initializer list.
 
 工厂构造函数的另一个用例是使用初始化列表中无法处理的逻辑初始化final变量。
+
+```dart
+class Logger {
+  final String name;
+  bool mute = false;
+
+  // _cache is library-private, thanks to
+  // the _ in front of its name.
+  static final Map<String, Logger> _cache = <String, Logger>{};
+
+  factory Logger(String name) {
+    return _cache.putIfAbsent(name, () => Logger._internal(name));
+  }
+
+  factory Logger.fromJson(Map<String, Object> json) {
+    return Logger(json['name'].toString());
+  }
+
+  Logger._internal(this.name);
+
+  void log(String msg) {
+    if (!mute) print(msg);
+  }
+}
+```
+```text
+ 备注: Factory constructors have no access to this.
+```
+
+nvoke a factory constructor just like you would any other constructor:
+
+像调用其他构造函数一样调用工厂构造函数:
+```dart
+var logger = Logger('UI');
+logger.log('Button clicked');
+
+var logMap = {'name': 'UI'};
+var loggerJson = Logger.fromJson(logMap);
+```
+
+#### 9.8 成员方法
+
+概念上对应java的成员方法，dart的成员方法本质上是一个函数。
