@@ -2146,3 +2146,159 @@ var loggerJson = Logger.fromJson(logMap);
 #### 9.8 成员方法
 
 概念上对应java的成员方法，dart的成员方法本质上是一个函数。
+
+##### 9.8.1 Instance methods
+无难点，照抄文档即可，翻译免。
+
+Instance methods on objects can access instance variables and this.
+The distanceTo() method in the following sample is an example of an instance method:
+```dart
+import 'dart:math';
+
+class Point {
+  final double x;
+  final double y;
+
+  Point(this.x, this.y);
+
+  double distanceTo(Point other) {
+    var dx = x - other.x;
+    var dy = y - other.y;
+    return sqrt(dx * dx + dy * dy);
+  }
+}
+```
+##### 9.8.2 Operators
+操作符，这个很有新意。在dart中定义一些操作符如加减乘除(+,-,*,/),这样我们就可以让两个或多个类的实例进行加减乘除，
+不过这个加减乘除并不是数学上的算数，而是定义一个函数进行计算，这个计算被赋予了操作符。
+
+虽然很有新意，但是例子并不难懂，我暂时也不想深入这个主题，所以看看例子就过了。
+```dart
+class Vector {
+  final int x, y;
+
+  Vector(this.x, this.y);
+
+  Vector operator +(Vector v) => Vector(x + v.x, y + v.y);
+  Vector operator -(Vector v) => Vector(x - v.x, y - v.y);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Vector && x == other.x && y == other.y;
+
+  @override
+  int get hashCode => Object.hash(x, y);
+}
+
+void main() {
+  final v = Vector(2, 3);
+  final w = Vector(2, 2);
+
+  assert(v + w == Vector(4, 5));
+  assert(v - w == Vector(0, 1));
+}
+```
+##### 9.8.3 Getters and setters
+
+简单，仅翻译。
+
+Getters and setters are special methods that provide read and write access to an object’s properties.
+
+getter和setter是提供对对象属性的读写访问的特殊方法。
+
+Recall that each instance variable has an implicit getter, plus a setter if appropriate.
+
+回想一下，每个实例变量都有一个隐式的getter，如果合适的话还会加上一个setter。
+
+You can create additional properties by implementing getters and setters, using the get and set keywords:
+
+你可以通过使用get和set关键字实现getter和setter来创建额外的属性:
+```dart
+ass Rectangle {
+  double left, top, width, height;
+
+  Rectangle(this.left, this.top, this.width, this.height);
+
+  // Define two calculated properties: right and bottom.
+  double get right => left + width;
+  set right(double value) => left = value - width;
+  double get bottom => top + height;
+  set bottom(double value) => top = value - height;
+}
+
+void main() {
+  var rect = Rectangle(3, 4, 20, 15);
+  assert(rect.left == 3);
+  rect.right = 12;
+  assert(rect.left == -8);
+}
+```
+With getters and setters, you can start with instance variables, later wrapping them with methods, all without changing client code.
+
+使用getter和setter，您可以从实例变量开始，然后用方法包装它们，而无需更改客户端代码。
+
+##### 9.8.4 Abstract methods
+简单，仅翻译。
+
+instance, getter, and setter methods can be abstract, defining an interface but leaving its implementation up to other classes.
+
+实例、getter和setter方法可以是抽象的，它们定义了一个接口，但将其实现留给其他类。
+
+Abstract methods can only exist in abstract classes or mixins.
+
+抽象方法只能存在于抽象类或混合中。
+
+To make a method abstract, use a semicolon (;) instead of a method body:
+
+要使方法抽象，使用分号(;)代替方法体:
+
+```dart
+abstract class Doer {
+  // Define instance variables and methods...
+
+  void doSomething(); // Define an abstract method.
+}
+
+class EffectiveDoer extends Doer {
+  void doSomething() {
+    // Provide an implementation, so the method is not abstract here...
+  }
+}
+```
+#### 9.9 继承
+
+虽然继承在面向对象语言比如java中，是一个非常庞大的话题，但是dart的继承设计似乎跟java区别不大，所以如果懂java则没必要长篇大论讲了。
+如果有值得提出来的问题我就贴出来研究一下。
+
+java中，重写父类方法可以改变返回类型为父类方法返回类型的子类，但参数不可以这样做。在dart中不但返回类型可以缩小，
+如果代码可以保证不会发生类型错误，参数的类型也可以缩小。
+
+##### noSuchMethod()
+
+To detect or react whenever code attempts to use a non-existent method or instance variable, you can override noSuchMethod():
+
+要在代码试图使用不存在的方法或实例变量时检测或做出反应，您可以重写noSuchMethod():
+```dart
+class A {
+  // Unless you override noSuchMethod, using a
+  // non-existent member results in a NoSuchMethodError.
+  @override
+  void noSuchMethod(Invocation invocation) {
+    print('You tried to use a non-existent member: '
+        '${invocation.memberName}');
+  }
+}
+```
+
+You can’t invoke an unimplemented method unless one of the following is true:
+
+除非下列条件之一为真，否则不能调用未实现的方法:
+
+The receiver has the static type dynamic.
+
+接收者具有静态类型的动态（这个“有静态类型的动态”是啥个意思啊？）。
+
+The receiver has a static type that defines the unimplemented method (abstract is OK), 
+and the dynamic type of the receiver has an implementation of noSuchMethod() that’s different from the one in class Object.
+
+接收者有一个定义未实现方法的静态类型(抽象是可以的)，接收者的动态类型有一个noSuchMethod()的实现，它与Object类中的实现不同。
