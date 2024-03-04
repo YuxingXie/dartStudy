@@ -1912,3 +1912,9 @@ class Vector3d extends Vector2d {
 
 Super-initializer parameters cannot be positional if the super-constructor invocation already has positional arguments,
 but they can always be named.
+
+我意译一下：如果父类构造函数调用时使用了位置参数，那么父类初始化器的参数就不能是位置参数，不过呢，如果参数都是命名参数就无所谓了。
+
+我再结合代码解释一下，例子是上面这段代码。父类构造函数调用是指的: super.named(x: 0)这段代码，它调用了父类的构造函数named,使用了命名参数x:0,
+所以父类初始化器Vector3d.yzPlane的参数就可以是位置参数也可以是命名参数。例子里都用了位置参数，所以研究是不全面的，我试了试其它情况。
+
