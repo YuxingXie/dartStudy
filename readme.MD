@@ -1905,7 +1905,9 @@ class Vector3d extends Vector2d {
 学到这里我猛的浮现了一幕，这种冒号的写法似乎在哪里见过。仔细想想似乎是c#和c++中有这种语法。
 
 几个名词提一下，是我本人的翻译和理解，不是标准答案：
-* super-initializer：父类初始化器，像Vector3d.yzPlane({required super.y, required this.z})这句代码是用来初始化父类的值的
+* initializer：初始化器，像Vector3d.yzPlane({required super.y, required this.z})这句代码的括号内（注意强调是括号内）是用来初始化父类或本类的值的，所以叫初始化器
+* super-initializer：带super的初始化器就是父类初始化器，它专门用来初始化父类的实例变量
+* initializer list：初始化器列表，即多个初始化器，也就是yzPlane方法里的多个参数
 * super-constructor：父类构造函数，Vector2d.named就是Vector3d的父类构造函数
 
 搞清这两个概念是为了理解这句话：
@@ -1916,5 +1918,38 @@ but they can always be named.
 我意译一下：如果父类构造函数调用时使用了位置参数，那么父类初始化器的参数就不能是位置参数，不过呢，如果参数都是命名参数就无所谓了。
 
 我再结合代码解释一下，例子是上面这段代码。父类构造函数调用是指的: super.named(x: 0)这段代码，它调用了父类的构造函数named,使用了命名参数x:0,
-所以父类初始化器Vector3d.yzPlane的参数就可以是位置参数也可以是命名参数。例子里都用了位置参数，所以研究是不全面的，我试了试其它情况。
+所以父类初始化器Vector3d.yzPlane的参数就可以是位置参数也可以是命名参数。例子里都用了位置参数，所以研究是不全面的，我试了试做点研究。
+
+```dart
+class Vector2d {
+  double x=0;
+  double y=0;
+  Vector2d.named(this.x,this.y);
+}
+class Vector3d extends Vector2d {
+  double z=0;
+  //第一个参数是super.y，是表示是给父类的y赋值吗？
+  Vector3d.xyPlane(super.y,super.x,this.z):super.named();
+  Vector3d.xyPlane(super.a,super.b,this.z):super.named();
+}
+
+main(){
+  Vector3d v1 = Vector3d.xyPlane(11,2,3);
+  print(v1.x);//print 11.0
+}
+
+```
+
+上面我写的例子里，Vector3d.xyPlane，xyPlane的第一个参数super.y（它是一个父类初始化器：super-initializer）并不是初始化父类的x属性的值的，
+因为是子类是调用父类的named方法，而named方法是定义了两个位置参数Vector2d.named(this.x,this.y)。所以该构造函数的第一个参数就是为了给x属性赋值的，
+第二个给y赋值。在子类定义自己的构造函数xyPlane时，同时利用初始化列表给父类赋值。因为父类构造函数定义的参数是位置参数，那么这个初始化列表就会按照位置顺序赋值。
+Vector3d.xyPlane(super.y,super.x,this.z)这段代码中，它的第一第二个参数已经被父类的构造函数固定了，y,x这几个变量名只不过是形式参数而已，你换成啥变量名都可以。
+但是第三个就必须是z了吗？也不是，我们可以这样写：
+```dart
+    //另一个命名构造函数
+  Vector3d.xyzPlane(super.a,super.b,double c):super.named() {
+    this.z=c;
+  }
+```
+。也就是说xyPlane这个构造函数的形参的顺序是先要满足父类构造函数的要求。
 
