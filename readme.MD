@@ -2892,5 +2892,29 @@ void main() async {
 教程到这里提示我还有异步编程的详细资料 https://dart.cn/codelabs/async-await 。
 如果有必要我可能还要开一章节学习这个，不过先把它这个简单的教程学完。
 
+##### 11.1.2 声明异步函数
 
+下面这个同步函数返回一个String:
+```dart
+String lookUpVersion() => '1.0.0';
+```
+改为异步后：
+```dart
+Future<String> lookUpVersion() async => '1.0.0';
+```
+有没有觉得奇怪，箭头函数明明代表着它返回了一个String,而不是Future<String>。
+为了让还不习惯箭头函数写法的我能看更明白，我把它改为常规写法：
+```dart
+Future<String> checkVersion() async {
+  return  '';
+}
+```
+一点也没有报错，说明说明？说明async函数虽然声明返回值是Future<String>，但你只需要返回String,
+它会自动包装成Future<String>。
 
+现在还有一个问题，我现在获得了Future<String>类型的返回值，我如何从这个包装对象中获得被包装进来字符串或其它对象呢？
+继续学下去找答案。
+
+##### 11.1.3 Handling Streams
+
+完全是没有前置知识就跳跃来的莫名其妙的一节，根本不知道在说什么。

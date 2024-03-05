@@ -1,10 +1,10 @@
 //void checkVersion() async {
 Future<String> checkVersion() async {
-  var version = await lookUpVersion();
-  print(version);
+//  var version = await lookUpVersion();
+//  print(version);
   // Do something with version
 //  return  null as Future<String>;
-  return  Future<String>(version);
+  return  '1.0';
 }
 
 lookUpVersion() {
@@ -13,5 +13,4 @@ lookUpVersion() {
 
 main(){
   Future<String> f = checkVersion();
-  print(f);
 }
