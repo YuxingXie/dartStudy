@@ -2302,3 +2302,268 @@ The receiver has a static type that defines the unimplemented method (abstract i
 and the dynamic type of the receiver has an implementation of noSuchMethod() that’s different from the one in class Object.
 
 接收者有一个定义未实现方法的静态类型(抽象是可以的)，接收者的动态类型有一个noSuchMethod()的实现，它与Object类中的实现不同。
+
+#### 9.10 混入(mixin)
+
+Mixins are a way of defining code that can be reused in multiple class hierarchies.
+
+Mixins是一种定义可以在多个类层次结构中重用的代码的方法。
+
+
+They are intended to provide member implementations en masse.
+
+它们旨在提供整体的成员实现。
+
+
+To use a mixin, use the with keyword followed by one or more mixin names.
+
+要使用mixin，使用with关键字，后跟一个或多个mixin名称。
+
+
+The following example shows two classes that use mixins:
+
+下面的例子展示了两个使用mixins的类:
+```dart
+class Person{
+
+}
+class Performer{}
+//Musical是一个mixin，with关键字表示使用mixin
+class Musician extends Performer with Musical {
+  // ···
+}
+
+class Maestro extends Person with Musical, Aggressive, Demented {
+  String? name;
+  Maestro(String maestroName) {
+    name = maestroName;
+    canConduct = true;
+  }
+}
+mixin Aggressive{}
+mixin Demented{}
+mixin Musical {
+  bool canPlayPiano = false;
+  bool canCompose = false;
+  bool canConduct = false;
+
+  void entertainMe() {
+    if (canPlayPiano) {
+      print('Playing piano');
+    } else if (canConduct) {
+      print('Waving hands');
+    } else {
+      print('Humming to self');
+    }
+  }
+}
+
+```
+试试怎么用：
+```dart
+main(){
+  var me =Maestro("Mike");
+  me.entertainMe();
+}
+
+```
+打印出了“Waving hands”。可以看出mixin有点像java中的接口和抽象类的复合体，dart中的类可以使用多个mixin，mixin中的方法可以有方法体。
+
+
+To define a mixin, use the mixin declaration.
+
+要定义mixin，请使用mixin声明。
+
+In the rare case where you need to define both a mixin and a class, 
+you can use the mixin class declaration.
+
+在需要同时定义mixin和类的极少数情况下，可以使用mixin类声明。
+
+Mixins and mixin classes cannot have an extends clause, and must not declare any generative constructors.
+
+mixin和mixin类不能有extends子句(mixin类是指with了mixin的类吗？前面的Maestro不是extends Person了吗？不要突然冒出一个概念来唬我好不好)，
+也不能声明任何生成构造函数。
+
+
+
+For example:
+```dart
+//有方法有变量，看上去像一个类，Musical不能extends另一个mixin
+mixin Musical {
+  bool canPlayPiano = false;
+  bool canCompose = false;
+  bool canConduct = false;
+
+  void entertainMe() {
+    if (canPlayPiano) {
+      print('Playing piano');
+    } else if (canConduct) {
+      print('Waving hands');
+    } else {
+      print('Humming to self');
+    }
+  }
+}
+
+```
+从目前的了解，mixin之间是没有继承关系的，dart如何组织这些mixin之间的关系应该会使用别的手段，我们继续看下去。
+
+Sometimes you might want to restrict the types that can use a mixin.
+
+有时你可能想限制可以使用mixin的类型。
+
+For example, the mixin might depend on being able to invoke a method that the mixin doesn’t define.
+
+例如，mixin可能依赖于能够调用mixin没有定义的方法。
+
+As the following example shows, you can restrict a mixin’s use by using the on keyword to specify the required superclass:
+
+如下面的例子所示，你可以通过使用on关键字来指定所需的父类来限制mixin的使用:
+```dart
+class Musician {
+  // ...
+}
+mixin MusicalPerformer on Musician {
+  // ...
+}
+class SingerDancer extends Musician with MusicalPerformer {
+  // ...
+}
+```
+
+说得不是很明确，我自己改了改代码试了下：
+
+```dart
+//Musician并不能 with MusicalPerformer
+class Musician {
+  // ...
+}
+
+mixin Performer {
+  // ...
+}
+//此处的on关键字表示该mixin只能用在extends Musician的类，即Musician的子类上，并不包括Musician本身
+mixin MusicalPerformer on Musician {
+  // ...
+}
+//MusicalPerformer只能用在继承了Musician的类上
+class SingerDancer extends Musician with MusicalPerformer {
+  // ...
+}
+//Athletes可以with Performer但是不可以with MusicalPerformer
+class Athletes with Performer{}
+
+```
+
+In the preceding code, only classes that extend or implement the Musician class can use the mixin MusicalPerformer.
+在前面的代码中，只有扩展或实现了Musician类的类才能使用mixin MusicalPerformer。
+
+Because SingerDancer extends Musician, SingerDancer can mix in MusicalPerformer.
+因为SingerDancer扩展了Musician，所以SingerDancer可以混合在MusicalPerformer中。
+
+
+##### 9.10.1 class, mixin, or mixin class?
+
+A mixin declaration defines a mixin.
+
+mixin声明定义了一个mixin。
+
+A class declaration defines a class.
+
+类声明定义了一个类。
+
+A mixin class declaration defines a class that is usable as both a regular class and a mixin, with the same name and the same type.
+
+mixin类声明定义了一个既可用作常规类又可用作mixin的类，具有相同的名称和类型。
+
+Any restrictions that apply to classes or mixins also apply to mixin classes:
+
+任何适用于类或mixin的限制也适用于mixin类:
+
+* Mixins can’t have extends or with clauses, so neither can a mixin class.
+
+mixin不能有extends或with子句，所以mixin类也不能。
+
+* Classes can’t have an on clause, so neither can a mixin class.
+
+类不能有on子句，mixin类也不能。
+
+```dart
+mixin class MixinClass{}
+```
+
+##### 9.10.2 abstract mixin class
+
+You can achieve similar behavior to the on directive for a mixin class.
+
+你可以在mixin类中实现与on指令类似的行为。
+
+Make the mixin class abstract and define the abstract methods its behavior depends on:
+
+使mixin类抽象，并定义其行为所依赖的抽象方法:
+```dart
+abstract mixin class Musician {
+  // No 'on' clause, but an abstract method that other types must define if 
+  // they want to use (mix in or extend) Musician: 
+  void playInstrument(String instrumentName);
+
+  void playPiano() {
+    playInstrument('Piano');
+  }
+  void playFlute() {
+    playInstrument('Flute');
+  }
+}
+
+class Virtuoso with Musician { // Use Musician as a mixin
+  void playInstrument(String instrumentName) {
+    print('Plays the $instrumentName beautifully');
+  }  
+} 
+
+class Novice extends Musician { // Use Musician as a class
+  void playInstrument(String instrumentName) {
+    print('Plays the $instrumentName poorly');
+  }  
+} 
+```
+
+实际上，mixin也是可以定义抽象方法的，即无方法体。所以是不是认为mixin是另一套语法规则的抽象类呢？
+
+By declaring the Musician mixin as abstract, you force any type that uses it to define the abstract method upon which its behavior depends.
+
+通过将音乐家mixin声明为抽象的，可以强制使用它的任何类型定义其行为所依赖的抽象方法。
+
+This is similar to how the on directive ensures a mixin has access to any interfaces it depends on by specifying the superclass of that interface.
+
+这类似于on指令通过指定接口的超类来确保mixin可以访问它所依赖的任何接口。
+
+#### 9.11 枚举
+
+声明一个枚举:
+```dart
+enum Color { red, green, blue }
+```
+#### 9.11.1 Declaring enhanced enums
+
+本章都没有难点，略。
+
+#### 9.12 扩展方法
+
+本章都没有难点，略。
+
+#### 9.12 可调用对象
+
+```dart
+class WannabeFunction {
+  String call(String a, String b, String c) => '$a $b $c!';
+}
+
+var wf = WannabeFunction();
+var out = wf('Hi', 'there,', 'gang');
+
+void main() => print(out);
+```
+本章都没有难点，略。
+
+### 10 类型修饰符
