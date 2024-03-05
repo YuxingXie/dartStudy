@@ -12,5 +12,6 @@ lookUpVersion() {
 }
 
 main(){
-  Future<String> f = checkVersion();
+  var f = checkVersion();
+  print(f);
 }

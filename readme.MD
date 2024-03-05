@@ -2918,3 +2918,48 @@ Future<String> checkVersion() async {
 ##### 11.1.3 Handling Streams
 
 完全是没有前置知识就跳跃来的莫名其妙的一节，根本不知道在说什么。
+
+
+#### 11.2 Isolates
+
+
+
+在Dart中一个最终会返回int类型值的promise，应当声明为 Future<int>；一个会持续返回一系列int类型值的promise，应当声明为Stream<int>。
+
+说明：一个返回用Future，多个返回用Stream。
+
+##### 11.2.1 Future读文件示例
+
+```dart
+import 'dart:convert';
+import 'dart:io';
+
+//const String filename = 'with_keys.json';
+//路径改成你自己的，文件里随便写个json
+const String filename = r'D:\develop\projects\dartProjects\dartStudy\src\main\dart\c11_Async\with_keys.json';
+
+void main() async {
+  // Read some data.
+  //这里_readFileAsync返回一个Future<String>，但是它作为参数传给jsonDecode是变为了String
+  final fileData = await _readFileAsync();
+  //查看jsonDecode API你会发现它的参数是需要一个字符串，说明fileData在传入是被转为了字符串
+  final jsonData = jsonDecode(fileData);
+
+  // Use that data.
+  print('Number of JSON keys: ${jsonData.length}');
+  print('$jsonData');
+}
+
+Future<String> _readFileAsync() async {
+  final file = File(filename);
+  final contents = await file.readAsString();
+  return contents.trim();
+}
+
+```
+main() 函数在调用 _readFileAsync() 前使用了 await 关键字，让原生代码（文件 I/O）执行的同时，其他的 Dart 代码（例如事件处理器）能继续执行。
+使用 await 后，_readFileAsync() 调用返回的 Future<String> 类型也转换为了 String。从而在将结果 content 赋予变量时，隐式转换为 String 类型。
+
+##### 11.2.2 Isolate 的工作原理
+
+与虚拟机和运行环境相关，这个我认为暂时不需要了解。
