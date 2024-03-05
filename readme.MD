@@ -2817,7 +2817,7 @@ https://dart.cn/language/modifier-reference
 
 ### 11. 并发
 
-我想学完这一章，dart的入门研究算是结束了吧。深入研究的主题我想用一个个的专题来研究。
+我想学完这一章，dart的入门研究算是结束了，接下来我会去搞flutter。如果dart还有需要深入研究的主题，我想用一个个的专题来研究。
 
 #### 11.1 异步支持
 Dart库中充满了返回Future或Stream对象的函数。这些函数是异步的:它们在设置一个可能很耗时的操作(比如I/O)后返回，而不等待该操作完成。
@@ -2830,7 +2830,67 @@ async和await关键字支持异步编程，使您可以编写与同步代码相�
 
 ```dart
 Future<void> checkVersion() async {
+//To use await, code must be in an async function —a function marked as async:
   var version = await lookUpVersion();
   // Do something with version
 }
 ```
+函数里出现await这种调用方式，函数就要声明为async函数。否则报错The await expression can only be used in an async function.
+
+注意要分清谁是调用者谁是被调用者，这里的await和async是要求调用者的，而被调用者，即lookUpVersion这个函数并没有要求。
+
+尽管异步函数可能执行耗时的操作，但它并不等待这些操作。相反，async函数只在遇到第一个await表达式之前执行。
+然后它返回一个Future对象，只有在await表达式完成后才恢复执行。
+```dart
+main(){
+  Future<void> f = checkVersion();
+  //other codes
+}
+
+```
+我们在main方法中调用checkVersion这个异步函数，异步函数在碰到await之前都和同步函数一样执行下去，
+main函数也在等待checkVersion的执行。直到碰到await，函数checkVersion知道了这是个耗时的操作，
+所以不等了立即返回一个Future<void>类型的对象，而main函数也会继续执行下去。不过在checkVersion函数内部，
+剩余的代码还会继续执行下去吗？前面说了，等await执行完成后会恢复执行。
+
+另外，大家发现没有，checkVersion有定义返回值类型Future<void>，但却没有return语句，不是很奇怪吗？
+是不是因为函数被定义为async后，就可以没有返回值呢？简单想想可能还真是，因为它碰到await会自动返回。
+然而我试了试把返回值类型由Future<void>改为Future<String>后，它就要求我需要返回值了：
+```dart
+
+Future<String> checkVersion() async {
+  var version = await lookUpVersion();
+  print(version);
+//如果没有return语句，编译会报错误：
+// The body might complete normally, causing 'null' to be returned, but the return type,
+// 'FutureOr<String>', is a potentially non-nullable type.
+  return  null as Future<String>;
+}
+```
+所以，只有Future<void>返回类型的async函数不需要返回值。
+
+await语句用try catch来捕获异常可能是个常规做法。
+
+await语句在一个async函数中可以出现多次：
+```dart
+var entrypoint = await findEntryPoint();
+var exitCode = await runExecutable(entrypoint, args);
+await flushThenExit(exitCode);
+```
+
+在await表达式中，expression的值通常是Future;如果不是，那么该值将自动包装在Future中。这个Future对象表示一个返回对象的承诺。
+await表达式的值就是返回的对象。await表达式暂停执行，直到该对象可用为止。
+
+如果在使用await时出现编译时错误，请确保await在async函数中。例如，要在应用程序的main()函数中使用await, main()函数体必须标记为async:
+```dart
+void main() async {
+  checkVersion();
+  print('In main: version is ${await lookUpVersion()}');
+}
+```
+
+教程到这里提示我还有异步编程的详细资料 https://dart.cn/codelabs/async-await 。
+如果有必要我可能还要开一章节学习这个，不过先把它这个简单的教程学完。
+
+
+
