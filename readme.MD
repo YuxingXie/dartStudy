@@ -2814,3 +2814,23 @@ https://dart.cn/language/modifier-reference
       </tr>
     </tbody>
   </table>
+
+### 11. 并发
+
+我想学完这一章，dart的入门研究算是结束了吧。深入研究的主题我想用一个个的专题来研究。
+
+#### 11.1 异步支持
+Dart库中充满了返回Future或Stream对象的函数。这些函数是异步的:它们在设置一个可能很耗时的操作(比如I/O)后返回，而不等待该操作完成。
+async和await关键字支持异步编程，使您可以编写与同步代码相似的异步代码。
+
+##### 11.1.1 Handling Futures
+
+当你要等待一个耗时的操作完成，这在客户端调用服务端web API是是非常常见的事情。在js中，我们可能会使用回调函数。
+本人对这种编程风格的讨厌程度极高。不过好在ES5之后有async和await搭救我。在dart中也有这两个关键字来做同样的事。
+
+```dart
+Future<void> checkVersion() async {
+  var version = await lookUpVersion();
+  // Do something with version
+}
+```
