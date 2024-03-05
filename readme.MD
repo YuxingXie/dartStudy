@@ -2567,3 +2567,250 @@ void main() => print(out);
 本章都没有难点，略。
 
 ### 10 类型修饰符
+
+类修饰符控制如何从类或mixin自己的库中以及从定义类或mixin的库外部使用类或mixin。
+修饰符关键字出现在类或mixin声明之前。
+例如，abstract class定义了一个抽象类。可以出现在类声明之前的修饰符的完整集合包括:
+* abstract
+* base
+* final
+* interface
+* sealed
+* mixin
+
+只有base修饰符可以出现在mixin声明之前。这些修饰符不适用于其他声明，如enum、typedef或extension。
+
+#### 10.1 No modifier
+要允许不受限制地从任何库构造或子类化，请使用不带修饰符的类或mixin声明。默认情况下，您可以:
+* 构造类的新实例。
+* 扩展类以创建新的子类型。
+* 实现一个类或mixin的接口。
+* 在mixin或mixin类中混合。
+
+#### 10.2 abstract
+
+#### 10.3 base
+
+要强制继承类或mixin的实现，请使用base修饰符。base类不允许在自己的库之外实现。这个担保:
+* 每当创建类的子类型的实例时，就调用基类构造函数。
+* 所有实现的私有成员都存在于子类型中。
+* 基类中新实现的成员不会破坏子类型，因为所有子类型都继承新成员。除非子类型已经声明了具有相同名称和不兼容签名的成员，否则是正确的。
+
+所以我想base类的初衷是为了小范围使用，比如只在自己的库中使用。因为它过于宽松，可以与子类共享私有属性。
+
+base类可以被继承（extends）不可以被实现（implements）。
+
+必须将实现或继承base类的任何类标记为base类、final类或sealed类。这可以防止外部库破坏基类的保证。
+
+#### 10.3 interface
+
+java中的interface在dart中成了修饰符，休时候的类就叫接口类。dart因为在类中隐式包含了接口，所以可以不需要接口这种东西。
+接口类只能实现不能继承。
+* 当一个类的实例方法调用另一个实例方法时(这在java中是办不到的，java程序员可能还不适应这种方式)，它将始终调用同一库中该方法的已知实现。
+* 其他库不能覆盖接口类自己的方法以后可能以意想不到的方式调用的方法。这减少了脆弱的基类问题。
+
+因为我还未在实战中使用过dart，所以并不能领会这些问题。
+
+#### 10.4 abstract interface
+
+没太看懂，是不是说abstract interface既像纯接口又像抽象类呢？
+
+The most common use for the interface modifier is to define a pure interface. Combine the interface and abstract modifiers for an abstract interface class.
+
+Like an interface class, other libraries can implement, but cannot inherit, a pure interface. Like an abstract class, a pure interface can have abstract members.
+
+#### 10.5 final
+阻止继承(extends)，也阻止实现（implements）。
+
+#### 10.6 sealed
+密封类。
+
+要创建已知的、可枚举的子类型集，请使用sealed修饰符。这允许您创建在这些子类型之间的切换，这些子类型静态地确保是详尽的。
+
+上面说的切换是指使用switch语法或switch子句详尽列举它的所有实例。
+
+sealed修饰符防止类在其自己的库之外被扩展或实现。密封类是隐式抽象的。
+
+* 它们不能自己构造(They cannot be constructed themselves)。
+* 他们可以有工厂构造函数(They can have factory constructors)。
+* 它们可以定义要使用的子类的构造函数(They can define constructors for their subclasses to use)。
+
+如果您不希望彻底switch，或者希望能够在不破坏API的情况下稍后添加子类型，请使用final修饰符。
+
+#### 10.7 Combining modifiers
+
+您可以为分层限制组合一些修饰符。一个类的声明可以是:
+* (可选)abstract，描述类是否可以包含抽象成员并防止实例化。
+* (可选) base,interface,final,sealed中的一种，描述对其他类子类化的限制。
+* (可选)mixin，描述是否可以混合声明。
+* class关键字本身。
+
+你不能把一些修饰语组合在一起，因为它们是矛盾的、冗余的或互斥的:
+* abstract with sealed. A sealed class is always implicitly abstract.
+* interface, final or sealed with mixin. These access modifiers prevent mixing in. 
+
+总之这些规则去记忆是没有道理的，在使用中慢慢踩坑和体会dart的设计原则才是正道。
+
+#### 10.8 API 维护者应该用的类型修饰符
+
+这是高级点的主题，所以我先跳过。先会用别人的API，等我想编写自己的API的时候再回来看看。
+
+#### 10.9 速查表
+
+https://dart.cn/language/modifier-reference
+
+<table class="table table-striped nowrap">
+    <thead>
+      <tr>
+        <th>Declaration</th>
+        <th>
+<a href="/language/classes#using-constructors">Construct</a>?</th>
+        <th>
+<a href="/language/extend">Extend</a>?</th>
+        <th>
+<a href="/language/classes#implicit-interfaces">Implement</a>?</th>
+        <th>
+<a href="/language/mixins">Mix in</a>?</th>
+        <th>
+<a href="/language/branches#exhaustiveness-checking">Exhaustive</a>?</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">class</code></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">base class</code></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">interface class</code></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">final class</code></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">sealed class</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract class</code></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract base class</code></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract interface class</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract final class</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">mixin class</code></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">base mixin class</code></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract mixin class</code></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">abstract base mixin class</code></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">mixin</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><code class="language-plaintext highlighter-rouge">base mixin</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td>No</td>
+        <td><strong>Yes</strong></td>
+        <td>No</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
