@@ -70,7 +70,10 @@ a = value;
 // Assign value to b if b is null; otherwise, b stays the same
 b ??= value;
 ```
-只有b为null时才赋值，否则b的值保持不变。
+只有b为null时才赋值，否则b的值保持不变。这种情形挺多的，在java中你得先做非空判断：
+```java
+if(b==null) b=value;
+```
 
 ##### 算术运算
 
