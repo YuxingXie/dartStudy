@@ -74,6 +74,7 @@ b ??= value;
 ```java
 if(b==null) b=value;
 ```
+如果你在dart中像java这样写了当然不会错，但是VSCode提示你代码可以优化。
 
 ##### 算术运算
 
