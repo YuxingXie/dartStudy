@@ -2552,6 +2552,35 @@ enum Color { red, green, blue }
 ```
 #### 9.11.1 Declaring enhanced enums
 
+下面这个枚举构造函数有三个required参数,并实现了Comparable接口，还定义了2个get函数。注意构造函数要是常量构造函数，三个实例变量都是final。
+
+还有dart枚举常量如果大写，在VSCode中会提示你建议用小写。
+
+```dart
+enum Vehicle implements Comparable<Vehicle> {
+  car(tires: 4, passengers: 5, carbonPerKilometer: 400),
+  bus(tires: 6, passengers: 50, carbonPerKilometer: 800),
+  bicycle(tires: 2, passengers: 1, carbonPerKilometer: 0);
+
+  const Vehicle({
+    required this.tires,
+    required this.passengers,
+    required this.carbonPerKilometer,
+  });
+
+  final int tires;
+  final int passengers;
+  final int carbonPerKilometer;
+
+  int get carbonFootprint => (carbonPerKilometer / passengers).round();
+
+  bool get isTwoWheeled => this == Vehicle.bicycle;
+
+  @override
+  int compareTo(Vehicle other) => carbonFootprint - other.carbonFootprint;
+}
+```
+
 本章都没有难点，略。
 
 #### 9.12 扩展方法
@@ -2610,7 +2639,7 @@ base类可以被继承（extends）不可以被实现（implements）。
 
 #### 10.3 interface
 
-java中的interface在dart中成了修饰符，休时候的类就叫接口类。dart因为在类中隐式包含了接口，所以可以不需要接口这种东西。
+java中的interface在dart中成了修饰符，修饰后的类就叫接口类。dart因为在类中隐式包含了接口，所以可以不需要接口这种东西。
 接口类只能实现不能继承。
 * 当一个类的实例方法调用另一个实例方法时(这在java中是办不到的，java程序员可能还不适应这种方式)，它将始终调用同一库中该方法的已知实现。
 * 其他库不能覆盖接口类自己的方法以后可能以意想不到的方式调用的方法。这减少了脆弱的基类问题。
@@ -2621,9 +2650,11 @@ java中的interface在dart中成了修饰符，休时候的类就叫接口类。
 
 没太看懂，是不是说abstract interface既像纯接口又像抽象类呢？
 
-The most common use for the interface modifier is to define a pure interface. Combine the interface and abstract modifiers for an abstract interface class.
+The most common use for the interface modifier is to define a pure interface. 
+Combine the interface and abstract modifiers for an abstract interface class.
 
-Like an interface class, other libraries can implement, but cannot inherit, a pure interface. Like an abstract class, a pure interface can have abstract members.
+Like an interface class, other libraries can implement, but cannot inherit, a pure interface. 
+Like an abstract class, a pure interface can have abstract members.
 
 #### 10.5 final
 阻止继承(extends)，也阻止实现（implements）。
