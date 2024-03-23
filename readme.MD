@@ -505,7 +505,7 @@ nobleGases[18] = 'argon';
 ```dart
  factory Map.from(Map other) = LinkedHashMap<K, V>.from;
 ```
-#
+
 它调用的是LinkedHashMap的from构造函数：
 
 ```dart
@@ -530,12 +530,14 @@ nobleGases[18] = 'argon';
 </hr>
 
 <b>2：List API</b>
+
 #
 
 
 </hr>
 
 <b>3：Set API</b>
+
 #
 
 #### 4.3. 泛型
