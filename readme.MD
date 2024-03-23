@@ -499,12 +499,15 @@ nobleGases[18] = 'argon';
 <b>1：Map API</b>
 #
 <hr/>
+
 * 1.1 命名构造函数from
+
 ```dart
  factory Map.from(Map other) = LinkedHashMap<K, V>.from;
 ```
 #
 它调用的是LinkedHashMap的from构造函数：
+
 ```dart
   factory LinkedHashMap.from(Map<dynamic, dynamic> other) {
     LinkedHashMap<K, V> result = LinkedHashMap<K, V>();
@@ -515,6 +518,7 @@ nobleGases[18] = 'argon';
   }
 ```
 例：
+
 ```dart
   var map = Map<String, dynamic>.from({'a': '100 dollors', 'b': 100});
   print(map['a'] == '100 dollors');//true
