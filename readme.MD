@@ -91,6 +91,8 @@ assert(5 ~/ 2 == 2); //取5/2结果的整数部分
  * is：如果对象具有指定类型，则为 True ，如：employee is Person
  * is!：如果对象没有指定的类型，则为 True，可视为is操作的非操作
 
+<div id='3.2.4'></div>
+
 ##### 级联表达式
 通过..或者?..对同一个对象(不是简单类型哦)进行多次方法或属性的调用：
 ```dart
@@ -558,7 +560,8 @@ map可以由from构造为map1，map3可以由map1构造，可见dynamic和Object
       LinkedHashMap<K, V>()..addAll(other);
 
 ```
-of方法没有使用类型强制转换，看上去更像是生成了一个同类型的新实例，暂时理解为克隆吧。
+of方法没有使用类型强制转换，看上去更像是生成了一个同类型的新实例，暂时理解为克隆吧。还记得两个点“..”操作吧，这个叫级联运算符，
+可以用来表示调用同一个对象的多个属性或方法，忘了的话可以返回去<a href='#3.2.4'>这里</a>看看。
 
 下面是使用of的例子：
 
@@ -622,15 +625,108 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
   }
 
 ```
+我请有道翻译了API的doc说明，括号里是我加的说明:
+
+创建一个Map实例，其中的键和值是从[iterable]中计算的。
+对于[iterable]的每个元素，通过分别将[key]和[value]应用于可迭代对象的元素来计算键/值对。
+相当于map字面量:
+
+  ```dart
+  <K, V>{for (var v in iterable) key(v): value(v)}
+  ```
+
+字面量通常更可取，因为它允许更精确的键入。下面的示例从一个整数列表创建一个新的映射。
+' map'的键是'list'值转换为字符串，'map'的值是'list'值的平方:
+```dart
+  final numbers = <int>[1, 2, 3];
+  final map = Map<String, int>.fromIterable(numbers,
+      key: (item) => item.toString(),
+      value: (item) => item * item);
+  print(map); // {1: 1, 2: 4, 3: 9}
+  ```
+如果没有指定[key]和[value]的值(都是函数哦)，则默认为identity函数（这个函数用来检查两个对象引用是否指向同一个对象，这里不太懂，这个函数要传两个参数，而且返回一个bool值）。
+在这种情况下，可迭代元素必须可赋值给所创建map的键或值类型。
+
+在下面的例子中，'map'的键和对应的值直接是'list'的值(就是说不传key和value参数，则key和value都是可迭代对象的值):
+```dart
+  final numbers = <int>[1, 2, 3];
+  final map = Map.fromIterable(numbers);
+  print(map); // {1: 1, 2: 2, 3: 3}
+  ```
+由源[iterable]计算的键不需要是唯一的。最后出现的键将覆盖之前出现的任何值。
+
+创建的映射是[LinkedHashMap]。'LinkedHashMap'要求键实现兼容的' operator== '和' hashCode '。它按键插入顺序迭代。
+
+翻译结束。
+
+总结说来就是，这个方法把一个可迭代对象转换为一个Map,这个Map的key和value都是根据可迭代对象的值，用传入的函数计算而来，不传入函数的话则key和value都是可迭代对象的值。
+
+这个方法看起来应该是非常重要的。
 
 
 
 
+<hr/>
+
+* 1.6 命名构造函数 fromIterables
+
+这个方法和fromIterable名字类似，只是用了复数，但是用法却不是一回事。它传入两个Iterable对象，第一个用来当map的key,第二个用来当map的value，
+并且是按顺序一对一配对，所以如果两个Iterable对象的长度不一样的话会报错。另外如果出现相同的key，后一个的key-value对会覆盖前一个。
+
+例：
+```dart
+  var it1 = <int>[1, 2, 2, 2, 2];
+  var it2 = <String>['a','b','c','d','e',];
+  print(Map<int, String>.fromIterables(it1, it2));
+  //打印{1: a, 2: e},不意外吧
+```
+这个方法不用说，肯定很重要，因为我以前在java中就碰到过许多这种用例，只可惜java没有这中API方法。
 
 
+<hr/>
+
+* 1.7 静态方法 castFrom
+
+```dart
+  static Map<K2, V2> castFrom<K, V, K2, V2>(Map<K, V> source) =>
+      CastMap<K, V, K2, V2>(source);
+```
+这是一个直接实现了的方法，返回值CastMap是Map的子类，所以也是个Map对象。该方法类似于强制类型转换，将Map<K, V>转换为Map<K2, V2>,
+所以在转换时可能会出现异常，需要类型兼容。
 
 
+<hr/>
 
+* 1.8 命名构造函数 fromEntries
+
+```dart
+  factory Map.fromEntries(Iterable<MapEntry<K, V>> entries) =>
+      <K, V>{}..addEntries(entries);
+```
+将多个MapEntry组装成一个Map对象。从代码看它是构造一个空的字面量Map,即<K, V>{}，然后用级联运算符("..")调用了addEntries方法，
+这个方法的作用就从它的字面就能看出来，就是在Map中添加条目。所以我趁热下一个就介绍addEntries方法。
+
+
+<hr/>
+
+* 1.9 实例方法 addEntries
+```dart
+//签名
+  void addEntries(Iterable<MapEntry<K, V>> newEntries);
+```
+没有方法体，所以不知道具体怎么实现的，不过理解起来很容易，就是把newEntries加到map实例中来。但是我还是不要想当然，有请有道翻译了一下，
+但是不用贴了，因为根本没有歧义。稍微可以提一下的是，碰到重复的key它会覆盖原来的值，这个应该也是能想到的。
+
+
+<hr/>
+
+* 1.10 实例方法 cast
+
+```dart
+  Map<RK, RV> cast<RK, RV>();
+```
+看上去这个方法是把map实例强制转换为Map<RK, RV>类型。这个方法有意义吗？有的，比如获得一个字面量map，没有指定key和value类型，你可以用这个方法给它指定key和value的类型，
+当然前提是不要出现类型转换错误。
 
 </hr>
 

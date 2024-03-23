@@ -18,4 +18,19 @@ main() {
   MapEntry entry = MapEntry("a", 23);
   var MapEntry(key: k, value: v) = entry;
   print("key:$k,value:$v");
+
+  identical(a, b);
+
+  var it1 = <int>[1, 2, 2, 2, 2];
+  var it2 = <String>[
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+  ];
+  print(Map<int, String>.fromIterables(it1, it2));
+
+  var cast = hist.cast<String, Object>();
+  print(cast['a']);
 }
