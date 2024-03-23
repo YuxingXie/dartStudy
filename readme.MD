@@ -500,15 +500,13 @@ nobleGases[18] = 'argon';
 #
 <hr/>
 
-* 1.1 命名构造函数from
+* 1.1 命名构造函数 from
 
 ```dart
+//Map中的定义
  factory Map.from(Map other) = LinkedHashMap<K, V>.from;
-```
 
-它调用的是LinkedHashMap的from构造函数：
-
-```dart
+//LinkedHashMap中的实现
   factory LinkedHashMap.from(Map<dynamic, dynamic> other) {
     LinkedHashMap<K, V> result = LinkedHashMap<K, V>();
     other.forEach((dynamic k, dynamic v) {
@@ -517,15 +515,96 @@ nobleGases[18] = 'argon';
     return result;
   }
 ```
+它可以给字面量或变量Map定义它的key和value的类型，通过源码我们可以看到它进行了强制类型转换。
+
 例：
 
 ```dart
   var map = Map<String, dynamic>.from({'a': '100 dollors', 'b': 100});
   print(map['a'] == '100 dollors');//true
 ```
+下面的代码会运行时报错：
+```dart
+  var map = Map<String, String>.from({'a': '100 dollors', 'b': 100});
+  print(map['b'] == '100');
+```
+'b'的值100不能被转换为String类型。dart似乎缺少一种类似java的反射机制，不会调用.toString方法将其转为String类型。
+
+所以，from构造函数构造一个Map,需要类型是兼容的才行，可以用dynamic或Object来作为转换后的类型。
+
+dynamic表示一种动态类型，和Object不知道有什么区别，所以写了如下代码:
+```dart
+    var map = Map<String, dynamic>.from({'a': '100 dollors', 'b': 100});
+  var map1 = Map<String, Object>.from(map);
+  var map2 = Map<String, Object>.from(map1);
+  var map3 = Map<String, dynamic>.from(map1);
+  print(map1['b'] == 100);//true
+  print(map1 == map2);//false，不是同一个对象
+  print(map3['b'] == 100);//true
+```
+map可以由from构造为map1，map3可以由map1构造，可见dynamic和Object在语法上暂时是互通的,dynamic对象上也可以调用toString方法。
+
+
 
 <hr/>
-* 1.2 命名构造函数of
+
+* 1.2 命名构造函数 of
+
+```dart
+  //Map中的定义
+  factory Map.of(Map<K, V> other) = LinkedHashMap<K, V>.of;
+  //LinkedHashMap中的实现
+    factory LinkedHashMap.of(Map<K, V> other) =>
+      LinkedHashMap<K, V>()..addAll(other);
+
+```
+of方法没有使用类型强制转换，看上去更像是生成了一个同类型的新实例，暂时理解为克隆吧。
+
+下面是使用of的例子：
+
+```dart
+
+  var mapDynamic = Map<String, dynamic>.of({'a': '100 dollors', 'b': 100});
+  var mapObj = Map<String, Object>.of({'a': '100 dollors', 'b': 100});
+  var map1 = Map<String, dynamic>.of(mapObj);
+  var map2 = Map<String, Object>.of(mapDynamic);//编译错误，The argument type 'Map<String, dynamic>' can't be assigned to the parameter type 'Map<String, Object>'. 
+
+```
+我们可以看到，dynamic比Object具有更高的兼容性，暂时就理解为dynamic是Object的父类。
+
+
+<hr/>
+
+* 1.3 命名构造函数 unmodifiable
+
+
+
+```dart
+///方法签名：external关键字是不是表示构造方法由外部实现？类似于abstract?所以构造函数也可以由其子类实现？
+external factory Map.unmodifiable(Map<dynamic, dynamic> other);
+
+```
+LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
+
+由于不知道它如何实现，看API英文知道，这个方法创建一个不可变的基于hash的Map,它的key的顺序都是不变的，它的key和value都要实现“==”和“hashCode”方法。
+具体有什么用，看实际项目有没有什么地方用得上吧。
+
+<hr/>
+
+* 1.4 命名构造函数 identity
+
+```dart
+//定义
+ factory Map.identity() = LinkedHashMap<K, V>.identity;
+
+//LinkedHashMap实现
+  external factory LinkedHashMap.identity();//标记为external，也没有真正实现
+```
+这个方法的API翻译过来还是很深奥的样子，不如我用平实点的话表示吧，就是这个方法构造的Map是有“身份证”的，它使用identical(一个核心库函数)来表示“相等”，
+用identityHashCode(也是一个核心库函数)表示hashCode,而不是用Object的“==”和“hashCode”方法。它的key的迭代循序是key的写入循序，记住这点，可能有点用。
+
+
+* 1.5 命名构造函数 fromIterable
 
 </hr>
 
