@@ -1,0 +1,3 @@
+main() {
+  var map = Map();
+}

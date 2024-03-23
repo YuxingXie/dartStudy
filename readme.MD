@@ -496,10 +496,25 @@ nobleGases[18] = 'argon';
 这一小节是我快速入门dart后，去搞了一阵flutter，然后发现必须回来补这一课，不但重要而且关键是它们的用法和java太不一样了。
 
 # 
-List API
+<b>1：Map API</b>
+#
+
+* 命名构造函数from
+```dart
+ factory Map.from(Map other) = LinkedHashMap<K, V>.from;
+```
 #
 
 
+
+</hr>
+<b>2：List API</b>
+#
+
+
+</hr>
+<b>3：Set API</b>
+#
 
 #### 4.3. 泛型
 
