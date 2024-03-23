@@ -830,14 +830,29 @@ dart官网用到了MapEntry对象，说实在的有点跳跃，但是不得不�
       print('$key occurred $count times');
     }
 ```
-重点在var MapEntry(key: key, value: count)这里。这应该是在循环中将hist.entries获得的一个MapEntry赋值给了一个模式，
-这个模式就是MapEntry(key: key, value: count)。
+这一段是我学习了后面的类以后回来更正的，之前的理解是错误的。dart官网的教程与其说是教程，不如说是工具书吧，它不是循序渐进的教你，而是让你前后翻来覆去看才能搞懂。
 
-模式括号里，冒号左边的key和value是关键字吗?不是的，它是调用了该MapEntry的key和value的getter方法。冒号右边的key和count才是变量名。
+根据后面类的知识，MapEntry(key: key, value: count)你可能以为这段代码其实是调用MapEntry的构造函数实例化一个MapEntry，但其实不是，我立即解释。
 
-前面的例子里，模式包含的类型是通过[]，{}或者别的字面量确定，这里直接指定类型，也算是模式的一种表达法吧。
+我们看到代码前面为什么有个var呢？var后面不应该是个变量名吗？不要急，我们前面不是看到过 var [a,b] = [1,2]这种代码吗？说明<b>一个值既可以赋给一个变量，也可以赋给一个模式,这种赋值方式叫解构。所以MapEntry(key: key, value: count)就是一个模式，不过它不是普通的变量模式，而是一个类的构造方法的模式。</b>
 
-现在就好理解了，print语句中解构了两个变量(可能不是这样表达，你懂就行^_^)。
+var [a,b] = [1,2]这句解构是按照变量定义的循序，把值按照这个循序赋给变量，a被赋值1，b被赋值2。
+
+那么在MapEntry的构造函数中赋值是按照顺序吗？第一个位置赋值给Map的key，第二个位置赋值给Map的value呢？
+
+为了表述的方便，我把代码稍微改一改：
+```dart
+  for (var MapEntry(value: v, key: k) in hist.entries) {
+    print('$k occurred $v times');
+  }
+  //a occurred 23 times
+  //b occurred 100 times
+```
+运行后发现打印的结果并没有把key和value搞反，说明模式是知道value这个东西是放MapEntry的value,key是放MapEntry的key的，它认的是这个名字。
+你可以改个别的名字，可以发现代码编译错误，可见key、value是固定写法。这个固定写法的东西到后面学到构造函数的时候你就会明白，这是一个很容易的理解的东西，
+即它们是MapEntry的实例变量，你可以点进MapEntry类进去看看，可以发现类里定义了  final K key;  final V value;两个属性，所以value表示它需要值，
+key表示它需要键。这里的for循环里的in hist.entries这段表示取一个MapEntry放入一个模式里，这个赋值过程不同于结构根据位置赋值，而是根据属性名称赋值，
+不过它也叫解构。
 
 另外dart中getter方法若和变量名相同，可以这样赋值：
 ```dart
@@ -848,7 +863,10 @@ dart官网用到了MapEntry对象，说实在的有点跳跃，但是不得不�
 ```
 #### 5.7 模式的用例
 
-模式应该挺有用的，但是我不太像说太多了，看看代码都可以明白，就只贴代码了。
+模式应该挺有用的，但是看看代码都可以明白，就只贴代码了。
+
+这段是我搞了一阵flutter以后回来补充的，flutter没有类似java反射这样的API，所以对类的分析能力很匮乏，我想模式可以弥补一些这方面的不足，
+但是很多时候都没往这方面想，可能是没有很熟悉模式的用法吧，这种新东西真的需要实战磨炼。
 
 ```dart
 
