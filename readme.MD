@@ -728,6 +728,69 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 看上去这个方法是把map实例强制转换为Map<RK, RV>类型。这个方法有意义吗？有的，比如获得一个字面量map，没有指定key和value类型，你可以用这个方法给它指定key和value的类型，
 当然前提是不要出现类型转换错误。
 
+<hr/>
+
+* 1.10 实例方法 containsValue
+
+```dart
+//方法签名
+ bool containsValue(Object? value);
+```
+这个方法表示map实例的value中是否包含传入的value，和java的Map的同名方法应该是一样的含义。这个方法重要但容易懂容易用就不多说了。不过我看到了一点问题，就是方法传入的参数是Object?,
+而不是泛型V，所以传入的值可以是随便什么类型。
+
+<hr/>
+
+* 1.10 实例方法 containsKey
+```dart
+ bool containsKey(Object? key);
+```
+简单到不用解释了。
+
+<hr/>
+
+* 1.11 操作符[] 
+
+如果你看不懂下面这句代码，先看看<a href='#9.8.2'>这里</a>。
+
+```dart
+ V? operator [](Object? key);
+```
+这就是从map中根据key获得值，跟java中Map的get方法一样。讲个有意思的，我搞了几天dart后，就匆匆去搞flutter，当发现dart中map没有get方法的时候，把傻眼了。
+
+<hr/>
+
+* 1.12 操作符[]=
+
+```dart
+  void operator []=(K key, V value);
+``` 
+[]=操作符具体怎么实现的我还不知道，不过我知道这句代码是相当于java map中的put方法，如：
+```dart
+  Map<String, int> hist = {
+    'a': 23,
+    'b': 100,
+  };
+  hist['c']=10;
+```
+
+
+<hr/>
+
+* 1.13 getter方法 entries
+
+```dart
+  Iterable<MapEntry<K, V>> get entries;
+```
+获得所有的条目的可迭代对象。
+
+//todo map api介绍一大半了，下次继续
+
+
+
+
+
+
 </hr>
 
 <b>2：List API</b>
@@ -2469,6 +2532,9 @@ class Point {
   }
 }
 ```
+
+<div id='9.8.2'></div>
+
 ##### 9.8.2 Operators
 操作符，这个很有新意。在dart中定义一些操作符如加减乘除(+,-,*,/),这样我们就可以让两个或多个类的实例进行加减乘除，
 不过这个加减乘除并不是数学上的算数，而是定义一个函数进行计算，这个计算被赋予了操作符。
@@ -2482,7 +2548,7 @@ class Vector {
 
   Vector operator +(Vector v) => Vector(x + v.x, y + v.y);
   Vector operator -(Vector v) => Vector(x - v.x, y - v.y);
-
+  Vector operator [](Vector v) => Vector(x + v.x, y + v.y);//这个[]操作符是我发现的哦，官网上没有，它有点特殊
   @override
   bool operator ==(Object other) =>
       other is Vector && x == other.x && y == other.y;
@@ -2497,6 +2563,9 @@ void main() {
 
   assert(v + w == Vector(4, 5));
   assert(v - w == Vector(0, 1));
+  //dart似乎知道这种成对出现的操作符是要把被操作的对象放到操作符的中间，像下面这样v[w]，大家去试试{},()这类成对的符号试试，我还没试过
+  //[]=也是一个操作符，它必须返回一个void，可以见Map的[]=操作符，相当于java Map中的put方法，不过它的用法我还没弄太明白。
+  assert(v[w] == Vector(4, 5));
 }
 ```
 ##### 9.8.3 Getters and setters

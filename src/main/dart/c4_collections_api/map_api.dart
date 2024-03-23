@@ -9,7 +9,7 @@ main() {
     'a': 23,
     'b': 100,
   };
-
+  hist['c'] = 10;
   for (var MapEntry(value: v, key: k) in hist.entries) {
     print('$k occurred $v times');
   }
@@ -31,6 +31,6 @@ main() {
   ];
   print(Map<int, String>.fromIterables(it1, it2));
 
-  var cast = hist.cast<String, Object>();
-  print(cast['a']);
+  // var cast = hist.cast<String, Object>();
+  // Object obj = hist[](1);
 }
