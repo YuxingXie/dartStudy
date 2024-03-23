@@ -15,4 +15,7 @@ main() {
   }
   var [a, b] = [1, 2];
   print(a + b);
+  MapEntry entry = MapEntry("a", 23);
+  var MapEntry(key: k, value: v) = entry;
+  print("key:$k,value:$v");
 }

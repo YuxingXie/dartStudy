@@ -672,6 +672,8 @@ dart的泛型似乎设计得比java的要好，因为java的泛型是编译时�
 
 ### 5. 模式匹配
 
+模式似乎很灵活很杂，要熟练掌握需要一点时间。
+
 #### 5.1 一些概念
 
 模式：一组值的形状。所谓形状，在之前的集合中有过提及。
@@ -832,6 +834,8 @@ dart官网用到了MapEntry对象，说实在的有点跳跃，但是不得不�
 ```
 这一段是我学习了后面的类以后回来更正的，之前的理解是错误的。dart官网的教程与其说是教程，不如说是工具书吧，它不是循序渐进的教你，而是让你前后翻来覆去看才能搞懂。
 
+可以先去初步看看<a href='#<div id='9.7'></a>'>构造函数</a>，<a href='#'9.7.1'>命名构造函数</a>,稍微了解一下才方便理解下面的内容。
+
 根据后面类的知识，MapEntry(key: key, value: count)你可能以为这段代码其实是调用MapEntry的构造函数实例化一个MapEntry，但其实不是，我立即解释。
 
 我们看到代码前面为什么有个var呢？var后面不应该是个变量名吗？不要急，我们前面不是看到过 var [a,b] = [1,2]这种代码吗？说明<b>一个值既可以赋给一个变量，也可以赋给一个模式,这种赋值方式叫解构。所以MapEntry(key: key, value: count)就是一个模式，不过它不是普通的变量模式，而是一个类的构造方法的模式。</b>
@@ -854,6 +858,19 @@ var [a,b] = [1,2]这句解构是按照变量定义的循序，把值按照这个
 key表示它需要键。这里的for循环里的in hist.entries这段表示取一个MapEntry放入一个模式里，这个赋值过程不同于结构根据位置赋值，而是根据属性名称赋值，
 不过它也叫解构。
 
+如果你细心，你会发现MapEntry的构造函数其实是位置参数而不是命名参数：const factory MapEntry(K key, V value)，模式并不管你的构造函数的参数位置，它只认名字。
+也许，这东西压根就跟构造函数没关系，它只是简单的把同名的类变量的值赋给模式中同名的变量，key给key,value给value。
+
+上面for循环示例代码想要表达的意思可以用下面的代码更清晰的表达：
+```dart
+  MapEntry entry = MapEntry("a", 23);
+  var MapEntry(key: k, value: v) = entry;
+  print("key:$k,value:$v");
+  //key:a,value:23
+```
+
+
+
 另外dart中getter方法若和变量名相同，可以这样赋值：
 ```dart
 ///简化key: key为:key。
@@ -861,6 +878,8 @@ key表示它需要键。这里的for循环里的in hist.entries这段表示取�
       print('$key occurred $count times');
     }
 ```
+学到后面回来解释一下，dart的类中定义一个属性，就隐式的定义了一个getter方法，aClass.someProp不是直接访问它的属性值，而是调用getter方法。
+
 #### 5.7 模式的用例
 
 模式应该挺有用的，但是看看代码都可以明白，就只贴代码了。
@@ -900,9 +919,10 @@ class Circle implements Shape {
 }
 
 double calculateArea(Shape shape) => switch (shape) {
+  //这个模式的用法似乎可以有一点类似java中反射的作用，具体能干什么要在实践中摸索
       Square(length: var l) => l * l,
       Circle(radius: var r) => math.pi * r * r
-    };
+};
 
 
 
@@ -930,6 +950,8 @@ if (json is Map<String, Object?> &&
   }
 }
 ```
+这里要重点说一说if case的用法。这种if case判断就是用来判断模式的，即变量是否匹配模式。 if (aVarible case aPattern)用来判断变量aVarible是否匹配模式aPattern。
+
 #### 5.8 模式匹配类型
 
 ##### 5.8.1 优先级
@@ -1832,6 +1854,7 @@ void main() {
 
 大致和java没什么区别
 
+<div id='9.7'></div>
 #### 9.7 构造方法
 
 初始化形参：
@@ -1848,6 +1871,7 @@ class Point {
 构造函数不会被继承。
 
 
+<div id='9.7.1'></div>
 ##### 9.7.1 命名构造函数
 
 命名构造函数，就是前面没搞懂的那句ProfileMark.unnamed() : name = '';就是命名构造函数。
@@ -1869,7 +1893,7 @@ class Point {
 }
 ```
 超类的构造函数和命名构造函数都不会被子类继承。
-
+# todo 来解释怎么办
 
 ##### 9.7.2 调用非默认超类构造函数
 ```dart
