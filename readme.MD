@@ -604,7 +604,33 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 用identityHashCode(也是一个核心库函数)表示hashCode,而不是用Object的“==”和“hashCode”方法。它的key的迭代循序是key的写入循序，记住这点，可能有点用。
 
 
+<hr/>
+
 * 1.5 命名构造函数 fromIterable
+
+```dart
+//签名：
+  factory Map.fromIterable(Iterable iterable,
+      {K key(dynamic element)?,
+      V value(dynamic element)?}) = LinkedHashMap<K, V>.fromIterable;
+//实现：
+  factory LinkedHashMap.fromIterable(Iterable iterable,
+      {K Function(dynamic element)? key, V Function(dynamic element)? value}) {
+    LinkedHashMap<K, V> map = LinkedHashMap<K, V>();
+    MapBase._fillMapWithMappedIterable(map, iterable, key, value);
+    return map;
+  }
+
+```
+
+
+
+
+
+
+
+
+
 
 </hr>
 
@@ -693,14 +719,14 @@ dart的泛型似乎设计得比java的要好，因为java的泛型是编译时�
  var[1,a,b] = [1,2,3];
 ```
 
-下面有个更好理解模式的例子：
+下面有个更好理解模式的例子，：
 ```dart
     const a = 'a';
     const b = 'b';
     switch (obj) {
       // List pattern [a, b] matches obj first if obj is a list with two fields,
       // then if its fields match the constant subpatterns 'a' and 'b'.
-      case [a, b]:
+      case [a, b]://提示一下，case后面可以接一个模式，所以[a, b]就是一个模式
         print('$a, $b');
     }
 ```
@@ -723,10 +749,10 @@ it works!!所以[1,a, b]这种常量结合变量的模式是合法的，只不�
 
 模式可以出现在：
 
-* Local variable declarations and assignments
-* for and for-in loops
-* if-case and switch-case
-* Control flow in collection literals
+* Local variable declarations and assignments(局部变量声明和赋值,如var [a,b] = [1,2])
+* for and for-in loops，例子在<a href='#5.6'>5.6节</a>
+* if-case and switch-case，见上例子
+* Control flow in collection literals，目前没有例子
 
 
 #### 5.3 解构(Destructuring)
@@ -787,8 +813,11 @@ switch (obj) {
       _ => false
     };
 ```
+这是我学了箭头函数和Switch表达式回来补充的，这一段叫Switch表达式，它省略了case关键字和花括号，用逗号隔开各个case,
+“_”表示default代码块，传入的color匹配哪个模式就返回箭头后面的那个值，
+所以上面的Switch表达式结果是bool类型的。
 
-#### 5.6 for 和 for-in 循环
+#### 5.6 for 和 for-in 循环 <div id='5.6'></div>
 
 dart官网用到了MapEntry对象，说实在的有点跳跃，但是不得不去参考java的MapEntry强行理解了一下，先看代码：
 ```dart
