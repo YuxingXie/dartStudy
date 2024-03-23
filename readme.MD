@@ -491,6 +491,16 @@ nobleGases[18] = 'argon';
     var listOfStrings = ['#0', for (var i in listOfInts) '#$i'];
     assert(listOfStrings[1] == '#1');
 ```
+###### 4.2.4.3 List,Map,Set的API细致研究
+
+这一小节是我快速入门dart后，去搞了一阵flutter，然后发现必须回来补这一课，不但重要而且关键是它们的用法和java太不一样了。
+
+# 
+List API
+#
+
+
+
 #### 4.3. 泛型
 
 dart的泛型似乎设计得比java的要好，因为java的泛型是编译时现象，在虚拟机中并不存在泛型这个东西，造成了很多理解上的困扰。
