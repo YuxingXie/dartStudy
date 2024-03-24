@@ -9,22 +9,31 @@
 
 做个目录吧：
 
-> ## <a href='#1'>1. dart sdk的安装</a>
-> ## <a href='#2'>2. 在intellij idea中运行第一个程序：helloWorld</a>
-> ## <a href='#3'>3. dart开发语言基础</a>
-> ## <a href='#4'>4. </a>
-> ## <a href='#5'>5. </a>
-> ## <a href='#6'>6. </a>
-> ## <a href='#7'>7. </a>
-> ## <a href='#8'>8. </a>
-> ## <a href='#9'>9. </a>
-> ## <a href='#10'>10. </a>
-> ## <a href='#11'>11. </a>
+> ### <a href='#1'>1. dart sdk的安装</a>
+> #### <a href='#1.1'>1.1 windows</a>
+> ### <a href='#2'>2. 在intellij idea中运行第一个程序：helloWorld</a>
+> ### <a href='#3'>3. dart开发语言基础</a>
+> ### <a href='#4'>4. 类型 </a>
+>> #### <a href='#4.1'>4.1 Numbers </a>
+>> #### <a href='#4.2'>4.2 Strings </a>
+>> #### <a href='#4.3'>4.3 Booleans </a>
+>> #### <a href='#4.6'>4.6. 泛型 </a>
+>> #### <a href='#4.7'>4.7. 类型定义(typedef,别名) </a>
+
+> ### <a href='#5'>5. 模式匹配</a>
+> ### <a href='#6'>6. 函数 </a>
+> ### <a href='#7'>7.控制流</a>
+> ### <a href='#8'>8.错误处理 </a>
+> ### <a href='#9'>9. 类 </a>
+> ### <a href='#10'>10. 类型修饰符</a>
+> ### <a href='#11'>11. 并发</a>
 
 
 <div id='1'>
 
 ### 1. dart sdk的安装
+
+<div id='1.1'>
 
 #### 1.1 windows
 
