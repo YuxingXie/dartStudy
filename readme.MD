@@ -11,7 +11,7 @@
 
 > ### <a href='#1'>1. dart sdk的安装</a>
 > #### <a href='#1.1'>1.1 windows</a>
-> ### <a href='#2'>2. 在intellij idea中运行第一个程序：helloWorld</a>
+> ### <a href='#2'>2. 运行第一个程序：helloWorld</a>
 > ### <a href='#3'>3. dart开发语言基础</a>
 > ### <a href='#4'>4. 类型 </a>
 >> #### <a href='#4.1'>4.1 Numbers </a>
@@ -49,7 +49,11 @@
 
 <div id='2'></div>
 
-### 2. 在intellij idea中运行第一个程序：helloWorld 
+### 2. 运行第一个程序：helloWorld 
+
+如果你的intellij idea版本不够高，比如我的2021，根本没法用，没提示没高亮，还是用VSCode吧。如果你习惯了Intellij Idea的快捷键，可以下一个idea的keymap插件，
+就可以使用idea的快捷键了。
+
 
 在intellij idea中安装dart插件，配置之前的路径c:/tools/dart-sdk作为dart sdk path。
 
