@@ -730,7 +730,7 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 
 <hr/>
 
-* 1.10 实例方法 containsValue
+* 1.11 实例方法 containsValue
 
 ```dart
 //方法签名
@@ -741,7 +741,7 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 
 <hr/>
 
-* 1.10 实例方法 containsKey
+* 1.12 实例方法 containsKey
 ```dart
  bool containsKey(Object? key);
 ```
@@ -749,9 +749,9 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 
 <hr/>
 
-* 1.11 操作符[] 
+* 1.13 操作符[] 
 
-如果你看不懂下面这句代码，先看看<a href='#9.8.2'>这里</a>。
+如果你看不懂下面这句代码，先看看<a href='#9.8.2'>Operators</a>这一节。
 
 ```dart
  V? operator [](Object? key);
@@ -760,12 +760,12 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 
 <hr/>
 
-* 1.12 操作符[]=
+* 1.14 操作符[]=
 
 ```dart
   void operator []=(K key, V value);
 ``` 
-[]=操作符具体怎么实现的我还不知道，不过我知道这句代码是相当于java map中的put方法，如：
+是相当于java map中的put方法，如：
 ```dart
   Map<String, int> hist = {
     'a': 23,
@@ -777,23 +777,159 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 
 <hr/>
 
-* 1.13 getter方法 entries
+* 1.15 getter方法 entries
 
 ```dart
   Iterable<MapEntry<K, V>> get entries;
 ```
 获得所有的条目的可迭代对象。
 
-//todo map api介绍一大半了，下次继续
+后面的研究，如果API使用简单很容易理解,从名字就大概知道用法的，我就只贴一个方法名了。
+
+<hr/>
+
+* 1.16 实例方法 map
+
+```dart
+
+ Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> convert(K key, V value));
+
+```
+map方法在js中大名鼎鼎，还有map-reduce这样的编程模式，在dart中我猜也一样吧，它从传入的convert函数重写Map中的所有条目，
+返回一个新的类型完全不同的Map。
+
+例：
+```dart
+  Map<String, int> hist = {'a': 23,'b': 100};
+    Map<String, String> histStrMap = hist.map((key, value) {
+    return MapEntry(key.toString(), value.toString());
+  });
+   if (histStrMap['b'] case String s) {//这里用模式判断是否String类型
+    print('String $s');//String 100
+  }
+```
 
 
+<hr/>
+
+* 1.17 实例方法 update
+
+```dart
+  V update(K key, V update(V value), {V ifAbsent()?});
+```
+用传入的update函数更新传入的key对应的value,返回更新后的value。例：
+```dart
+  Map<String, int> hist = {
+    'a': 23,
+    'b': 100,
+  };
+  int doubleB = hist.update('b', (value) => value * 2);
+  print(doubleB);//200
+  print("after update:${hist['b']}");//after update:200
+```
+
+<hr/>
+
+* 1.18 实例方法 updateAll
+```dart
+void updateAll(V update(K key, V value));
+```
+更新所有的条目。
 
 
+<hr/>
+
+* 1.19 实例方法 removeWhere
+```dart
+ void removeWhere(bool test(K key, V value));
+```
+这个方法是移除所有条件符合test方法的条目，和SQL中的delete...where语句对比理解下。
+
+另外补充一点别的知识。到现在我们看到了很多API方法传入函数的例子，这个传入的函数的形参名，比如这里的test，
+并不是要求你这样命名，而是API要把你传入的函数给它命名，因为它要执行这个函数，函数的参数传什么也由API定义。这里API告诉你，
+test会传入Map条目的key和value。自己试着写一个方法，参数接收一个函数。
 
 
+<hr/>
+
+* 1.20 实例方法 putIfAbsent
+```dart
+  V putIfAbsent(K key, V ifAbsent());
+```
+如果Map存在key对应的value，则返回这个value,这个时候它进相当于[]操作；当不存在对应value时，它会在map中添加一条key,值是ifAbsent的返回值。
+
+例：
+```dart
+  final diameters = <num, String>{1.0: 'Earth'};
+  final otherDiameters = <double, String>{0.383: 'Mercury', 0.949: 'Venus'};
+  for (final item in otherDiameters.entries) {
+    diameters.putIfAbsent(item.key, () => item.value);//大家发现闭包没有？item被带到了它的环境之外。
+  }
+  print(diameters); // {1.0: Earth, 0.383: Mercury, 0.949: Venus}
+  // If the key already exists, the current value is returned.
+  final result = diameters.putIfAbsent(0.383, () => 'Random');
+  print(result); // Mercury
+  print(diameters); // {1.0: Earth, 0.383: Mercury, 0.949: Venus}
+```
 </hr>
 
+
+<hr/>
+
+* 1.21 实例方法 addAll
+```dart
+  void addAll(Map<K, V> other);
+```
+
+<hr/>
+
+* 1.22 实例方法 remove
+```dart
+  V? remove(Object? key);
+```
+有返回值哦。
+
+<hr/>
+
+* 1.23 实例方法 clear
+```dart
+  void clear();
+```
+Removes all entries from the map.
+
+<hr/>
+
+* 1.24 实例方法 forEach
+```dart
+  void forEach(void action(K key, V value));
+```
+Applies [action] to each key/value pair of the map.
+
+
+<hr/>
+
+* 1.25 getter方法 keys,values,length,isEmpty,isNotEmpty
+
+这几个放一起介绍。
+```dart
+  /// The keys of [this].
+  Iterable<K> get keys;
+  /// The values of [this].
+  Iterable<V> get values;
+
+  /// The number of key/value pairs in the map.
+  int get length;
+
+  /// Whether there is no key/value pair in the map.
+  bool get isEmpty;
+
+  /// Whether there is at least one key/value pair in the map.
+  bool get isNotEmpty;
+```
+
 <b>2：List API</b>
+
+太花时间了，碰到了再来补充。
 
 #
 
@@ -801,8 +937,15 @@ LinkedHashMap是一个抽象类，它也没有实现这个构造函数。
 </hr>
 
 <b>3：Set API</b>
+太花时间了，碰到了再来补充。
 
 #
+
+</hr>
+
+<b>Iterable API</b>
+
+虽然里面有些重要的东西，但是一个个研究太花时间了，碰到了再来补充。
 
 #### 4.3. 泛型
 
@@ -2564,7 +2707,7 @@ void main() {
   assert(v + w == Vector(4, 5));
   assert(v - w == Vector(0, 1));
   //dart似乎知道这种成对出现的操作符是要把被操作的对象放到操作符的中间，像下面这样v[w]，大家去试试{},()这类成对的符号试试，我还没试过
-  //[]=也是一个操作符，它必须返回一个void，可以见Map的[]=操作符，相当于java Map中的put方法，不过它的用法我还没弄太明白。
+  //[]=也是一个操作符，它必须返回一个void，可以见Map的[]=操作符，相当于java Map中的put方法，它的意义是给[] 操作后再赋值
   assert(v[w] == Vector(4, 5));
 }
 ```

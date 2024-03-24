@@ -9,6 +9,15 @@ main() {
     'a': 23,
     'b': 100,
   };
+  int doubleB = hist.update('b', (value) => value * 2);
+  print(doubleB);
+  print("after update:${hist['b']}");
+  Map<String, String> histStrMap = hist.map((key, value) {
+    return MapEntry(key.toString(), value.toString());
+  });
+  if (histStrMap['b'] case String s) {
+    print('String $s');
+  }
   hist['c'] = 10;
   for (var MapEntry(value: v, key: k) in hist.entries) {
     print('$k occurred $v times');
@@ -33,4 +42,21 @@ main() {
 
   // var cast = hist.cast<String, Object>();
   // Object obj = hist[](1);
+
+  final planetsByMass = <num, String>{
+    0.81: 'Venus',
+    1: 'Earth',
+    0.11: 'Mars',
+    17.15: 'Neptune'
+  };
+
+  planetsByMass.forEach((key, value) {
+    print('$key: $value');
+    key = key * 2;
+    // 0.81: Venus
+    // 1: Earth
+    // 0.11: Mars
+    // 17.15: Neptune
+  });
+  print(planetsByMass);
 }
