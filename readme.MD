@@ -19,7 +19,10 @@
 >> ##### <a href='#4.3'>4.3 Booleans </a>
 >> ##### <a href='#4.4'>4.4 Records </a>
 >> ##### <a href='#4.5'>4.5 集合(Collections) </a>
->>> ###### <a href='#4.5.5'>4.5.5 List,Map,Set的API </a>
+>>> ###### <a href='#4.5.5'>4.5.5 Map API </a>
+>>> ###### <a href='#4.5.6'>4.5.6 List API </a>
+>>> ###### <a href='#4.5.7'>4.5.7 Set API </a>
+>>> ###### <a href='#4.5.8'>4.5.8 Iterable API </a>
 >> ##### <a href='#4.6'>4.6. 泛型 </a>
 >> ##### <a href='#4.7'>4.7. 类型定义(typedef,别名) </a>
 
@@ -556,7 +559,7 @@ nobleGases[18] = 'argon';
 
 <div id='4.5.5'></div>
 
-##### 4.5.5 List,Map,Set的API
+##### 4.5.5 Map API
 
 这一小节是我快速入门dart后，去搞了一阵flutter，然后发现必须回来补这一课，不但重要而且关键是它们的用法和java太不一样了。
 
@@ -989,22 +992,23 @@ Applies [action] to each key/value pair of the map.
   bool get isNotEmpty;
 ```
 
-<b>2：List API</b>
+<div id='4.5.6'></div>
+
+##### 4.5.6 List API
 
 太花时间了，碰到了再来补充。
 
 
 
-</hr>
+<div id='4.5.7'></div>
 
-<b>3：Set API</b>
+##### 4.5.7 Set API
+
 太花时间了，碰到了再来补充。
 
-#
+<div id='4.5.8'></div>
 
-</hr>
-
-<b>Iterable API</b>
+##### 4.5.8 Iterable API
 
 虽然里面有些重要的东西，但是一个个研究太花时间了，碰到了再来补充。
 
@@ -2069,7 +2073,7 @@ dart的函数取代了java中的方法。
 
 记住一点，dart的构造函数总是希望将所有的成员变量全部赋值，不留下空值。
 
-无需new关键字,用也可以。文档中使用了一个fromJson方法创建对象，不知道这个方法是不是继承自Object：
+无需new关键字,用也可以。文档中使用了一个fromJson方法创建对象，实际上它也是构造方法，叫做<a href='#9.7.1'>命名构造函数</a>：
 ```dart
 var p1 = Point(2, 2);
 var p2 = Point.fromJson({'x': 1, 'y': 2});
