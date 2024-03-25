@@ -34,6 +34,8 @@
 > #### <a href='#7'>7.控制流</a>
 > #### <a href='#8'>8.错误处理 </a>
 > #### <a href='#9'>9. 类 </a>
+>> ##### <a href='#9.3'>9.3 获取对象的类型 </a>
+>> ##### <a href='#9.10'>9.10 混入(mixin) </a>
 > #### <a href='#10'>10. 类型修饰符</a>
 > #### <a href='#11'>11. 并发</a>
 
@@ -2065,6 +2067,8 @@ var b = ImmutablePoint(1, 1); // Does NOT create a constant
 assert(!identical(a, b)); // NOT the same instance!
 ```
 
+<div id='9.3'></div>
+
 #### 9.3 获取对象的类型
 To get an object’s type at runtime, you can use the Object property runtimeType, which returns a Type object.
 ```dart
@@ -2215,6 +2219,7 @@ class Point {
 
 
 <div id='9.7.1'></div>
+
 ##### 9.7.1 命名构造函数
 
 命名构造函数，就是前面没搞懂的那句ProfileMark.unnamed() : name = '';就是命名构造函数。
@@ -2236,7 +2241,11 @@ class Point {
 }
 ```
 超类的构造函数和命名构造函数都不会被子类继承。
-# todo 来解释怎么办
+在搞了一阵flutter之后，发现这是个问题，因为我碰到需要子类强制实现抽象父类的命名构造方法的需求。
+我目前用external关键字解决，但这是不完美的方法，因为在编译阶段dart并不会检查子类是否真的实现了这个方法。
+再学习看看有什么好的解决方案。
+
+我又回来了，说明找到了答案。答案就是：mixin。可以在定义一个含命名构造函数的抽象mixin，with这个mixin的子类必须实现这个命名构造函数。
 
 ##### 9.7.2 调用非默认超类构造函数
 ```dart
@@ -2856,6 +2865,8 @@ The receiver has a static type that defines the unimplemented method (abstract i
 and the dynamic type of the receiver has an implementation of noSuchMethod() that’s different from the one in class Object.
 
 接收者有一个定义未实现方法的静态类型(抽象是可以的)，接收者的动态类型有一个noSuchMethod()的实现，它与Object类中的实现不同。
+
+<div id='9.10'></div>
 
 #### 9.10 混入(mixin)
 

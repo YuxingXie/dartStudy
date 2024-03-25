@@ -4,22 +4,29 @@ abstract mixin class Musician {
   // they want to use (mix in or extend) Musician:
   void playInstrument(String instrumentName);
 
+  Musician.fromJson();
+
   void playPiano() {
     playInstrument('Piano');
   }
+
   void playFlute() {
     playInstrument('Flute');
   }
 }
 
-class Virtuoso with Musician { // Use Musician as a mixin
+class Virtuoso with Musician {
+  // Use Musician as a mixin
 
   void playInstrument(String instrumentName) {
     print('Plays the $instrumentName beautifully');
   }
 }
 
-class Novice extends Musician { // Use Musician as a class
+class Novice extends Musician {
+  Novice.fromJson() : super.fromJson();
+
+  // Use Musician as a class
   void playInstrument(String instrumentName) {
     print('Plays the $instrumentName poorly');
   }
