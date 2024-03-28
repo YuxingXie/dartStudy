@@ -1,0 +1,14 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "dartStudy",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    }
+  ],
+  "generated": "2024-03-28T08:19:39.715998Z",
+  "generator": "pub",
+  "generatorVersion": "3.3.3"
+}
