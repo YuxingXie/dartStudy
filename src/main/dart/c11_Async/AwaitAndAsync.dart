@@ -4,14 +4,14 @@ Future<String> checkVersion() async {
 //  print(version);
   // Do something with version
 //  return  null as Future<String>;
-  return  '1.0';
+  return Future(lookUpVersion);
 }
 
-lookUpVersion() {
-
+String lookUpVersion() {
+  return '100';
 }
 
-main(){
-  var f = checkVersion();
+main() async {
+  String f = await checkVersion();
   print(f);
 }

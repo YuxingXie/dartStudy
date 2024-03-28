@@ -3446,13 +3446,282 @@ isolate，英文翻译为“隔离”。我想它应该是类似java中Thread（
 ```text
 洗菜-->切菜-->炒菜-->上菜
 ```
-我们把这四个步骤认为是同步操作，即程序是按照顺序一步步执行的。
+我们把这四个步骤认为是程序中的四个方法，他们是同步操作，即程序是按照顺序一步步执行的。
+
 
 我们把厨房里不需要等待别人完成后才能完成的操作都认为是同步操作，上面的步骤如果更细分，比如锅里放油，烧火，煮熟
 （现实中煮熟菜虽然耗时，但在程序中我们就认为是瞬间炒熟吧，因为如果材料齐备，它不需要等待任何人的操作）都可以认为是同步操作。每当一个客人来点菜，
-饭店就产生了一个需要处理的炒菜事件，如果有很多客人点菜，就产生了一个事件队列，厨师不停的炒菜，客人不停的点菜，便形成了一个事件循环。
+饭店就产生了一个需要处理的炒菜事件，如果有很多客人点菜，就产生了一个事件队列，客人不停的点菜，厨师不停的洗菜-->切菜-->炒菜-->上菜，便形成了一个事件循环。
 
-这一切都发生在一个isolate里，就是一条线，它没有任何需要和其它isolate互动的地方，这条线也就是main函数执行的这条线，我就叫它主线吧。
+从程序的角度看，客人点菜便产生了一个事件，程序将这个事件放入事件循环的队列中，所有的事件需要程序去响应，完成炒菜的四个方法。
+
+所有的事件都发生在一个isolate里，就是一条线，它没有任何需要和其它isolate互动的地方，这条线也就是main函数执行的这条线，我就叫它主线吧。
 
 大家稍微思考一下，主线上的任务都不需要耗时等待，作为厨师，他预期的所有需要的材料都摆在那里，客人点剁椒鱼头的时候，鱼就在厨房水桶里，剁椒在泡菜坛子里。
 在程序里，就类似于我们执行到某一步，需要的变量都是被赋值了的。
+
+同步操作是令人愉快的事情，按部就班逻辑顺序通畅，我们都期望世界就这么运行下去。
+
+然而世界是残酷的，某天大厨准备炒剁椒鱼头时，发现水桶里没有鱼了。碰到这种事情，王大厨会通知采购员小李去菜市场买鱼，然后自己先做下一道菜，直到等鱼买回来了，
+小李会把鱼放在水桶里，并通知王大厨鱼到了。这时王大厨就可以继续做剁椒鱼头了。
+
+小李去买鱼，这是王大厨无法掌握的事情，他无法知道现在买鱼的进度，这一切都发生在厨房外的另一个空间里，只有等到小李回来的通知他才知道买鱼的结果。这相当于程序在另一条先上执行。
+所以现在程序有了两个isolate。
+
+所以王大厨在小李出去买鱼后，就产生一个期待，因为小李承诺他会买回来鱼，这样在未来某个时刻，王大厨可以继续做完要做的剁椒鱼头。我们如何在dart程序中实现这套想法呢？我们接着研究。
+
+#### 11.2 异步编程（Asynchronous programming）
+
+这里我们要将厨房发生的事情抽象为异步编程。
+
+##### 11.2.1 Future
+
+回到厨房，小李采购回鱼头，这件事发生在未来。所以在dart中，我们把这个带回来的东西抽象出一个容器，它就叫Future。我们看一下Future的API，发现它是泛型的，
+它的参数在厨房这个例子这里就是鱼(Fish)，这个例子里小李带回了Future<Fish>。
+
+我们继续看Future的API，它的doc非常长，也说明它的重要性。我把它全文有道翻译一下，单独列在下一小节。
+
+##### 11.2.2 Future API doc
+
+下面是Future API的翻译，我自己的话在括号内标明了“本人注”。
+
+（Future是）异步计算的结果。
+
+异步计算不能在开始时立即提供结果，不像同步计算那样通过返回值或抛出立即计算结果。
+
+异步计算可能需要等待程序外部的一些事情(读取文件、查询数据库、获取网页)，这需要时间。异步计算不是阻塞所有计算直到结果可用，而是立即返回一个“Future”，
+它将*最终*与结果“完成”(本人注：*eventually* "complete" with the result，是不是翻译为“最终伴随着结果完成”更好一点？)。
+
+异步编程
+
+要执行异步计算，您可以使用' async '函数，该函数总是产生一个future。
+
+在这样的异步函数中，您可以使用' await '操作来延迟执行，直到另一个异步计算得到结果。
+
+当等待函数的执行被延迟时，程序不会被阻塞，并且可以继续做其他事情。
+
+Example:
+```dart
+import "dart:io";
+Future<bool> fileContains(String path, String needle) async {
+   var haystack = await File(path).readAsString();
+   return haystack.contains(needle);
+}
+```
+这里来自dart:io的File.readAsString方法是一个异步函数，返回`Future<String>`。
+
+'filcontains'函数在其函数体前被标记为'async'，这意味着你可以在其中使用'await'，并且它必须返回一个future。
+
+对'File(path).readasstring()'的调用启动将文件读入字符串，并产生一个'Future<String>'，它最终将包含结果。
+
+然后，' await '等待该Future以字符串完成(如果读取文件失败，则伴随error返回)。
+
+(本人注：error也是Future带回来的结果，只不过是意料之外的结果。)
+
+在等待期间，程序可以做其他事情。
+
+(本人注：不是说程序在await这里等待吗？所以其它可以做的事情肯定不是这个isolate上的事情，而是main isolate上的事情。
+诶，如果我们让main isolate的代码也用await来等待这个结果返回，是不是代码就变成同步的了？好像是的，只不过坏处就是main isolate也被阻塞了，
+如果阻塞成本不是很高，并不是不能考虑。举厨房的例子说，就是王大厨等小李带回鱼才开始做事，其它事情都撂一边。如果菜市场就在隔壁，这个等待也不是不能考虑。)
+
+当future以字符串结束时，'filcontains'函数计算一个布尔值并返回它，然后完成它第一次（本人注：first翻译为"第一次”似乎不如“开始”）调用时返回的原始future。
+
+（本人注：如果不是async函数，这个fileContains函数在语法上是错误的，因为它return一个bool，而函数声明是要一个Future<bool>，
+说明async的函数自动把return的返回值包装进了一个Future里。）
+
+如果Future以*error*结束，等待该Future将(重新)抛出该错误。在这个例子中，我们可以添加错误检查:
+```dart
+import "dart:io";
+Future<bool> fileContains(String path, String needle) async {
+  try {
+    var haystack = await File(path).readAsString();
+    return haystack.contains(needle);
+  } on FileSystemException catch (exception, stack) {
+    _myLog.logError(exception, stack);
+    return false;
+  }
+}
+```
+使用“Future”API编程。
+
+Future类还提供了一个更直接的低级功能来访问它完成的结果。'async'和'await'语言特性是建立在这个功能之上的，有时直接使用它是有意义的。
+有些事情是不能通过一次只“等待”一个未来来完成的。
+
+使用[Future]，您可以手动注册处理该值或错误的回调，一旦该值可用。
+例如:
+```dart
+Future<int> future = getFuture();
+future.then((value) => handleValue(value))
+      .catchError((error) => handleError(error));
+```
+(本人注：这里，then方法执行的时机是Future带回了int值的时候，在返回一个值之前，程序在另一个isolate里是阻塞的，而在此isolate里，代码已经执行到后面去了，执行到哪里你是根本不知道的。
+异步最烦的就是如果后面的代码要依赖这个Future带回来的值，你后面的代码就必须写在then方法里。更惨的是如果你定义的方法需要的返回值依赖这个then的返回值，方法根本就实现不了。)
+
+由于[Future]可以通过两种方式完成，要么使用一个值(如果异步计算成功)，要么使用一个错误(如果计算失败)，您可以为其中一种或两种情况安装回调。
+
+在某些情况下，我们说一个Future是由另一个Future完成的。
+(本人注：不知道它是不是想说，一个Future被返回，是因为另一个Future被返回了，好比小李带回鱼是因为菜市场采购过程中某个耗时的工作完成了，这个耗时的方法也返回一个Future。)
+
+这是一种简短的说法，说明Future的完成方式与另一个Future的完成方式相同，具有相同的值或错误。
+
+(本人注：经实践，then方法可以改变Future返回时携带的值的类型，所以这种说法不是那么严谨，当然，不调用then方法这种说法就完全成立。所以说，在异步的调用栈中，
+写多个then方法是没必要的，除非能优化代码。)
+
+平台库中完成future的大多数函数(例如[Completer.complete]或[Future .value])也接受另一个Future，并自动处理将结果转发给正在完成的Future。
+
+(本人注：Future.value会将一个非Future的参数值包装为Future，比如Future.value(Fish())会返回一个Future<Fish>,所以我总觉得这翻译不是太准确)。
+
+如果被调用的回调抛出，则新的Future将以错误完成(本人注：即返回Future<Error>,重点是“抛出”)。例如:
+
+ ```dart
+Future<int> successor = future.then((int value) {
+    // Invoked when the future is completed with a value.
+    return 42;  // The successor is completed with the value 42.
+  },
+  onError: (e) {
+    // Invoked when the future is completed with an error.
+    if (canHandle(e)) {
+      return 499;  // The successor is completed with the value 499.
+    } else {
+      throw e;  // The successor is completed with the error e.
+    }
+  });
+```
+如果future在处理错误时没有任何注册的处理程序，它会将错误转发给“未捕获错误处理程序”。
+此行为确保没有错误被静默丢弃。但是，这也意味着应该尽早安装错误处理程序，以便在将来完成错误时立即显示它们。下面的例子演示了这个潜在的bug:
+
+```dart
+  var future = getFuture();
+  Timer(const Duration(milliseconds: 5), () {
+    // The error-handler is not attached until 5 ms after the future has
+    // been received. If the future fails before that, the error is
+    // forwarded to the global error-handler, even though there is code
+    // (just below) to eventually handle the error.
+    future.then((value) { useValue(value); },
+                onError: (e) { handleError(e); });
+  });
+ ```
+ （本人注：解释下代码，这个Timer是定时器，这里它定时5ms后调用第二个参数传入的函数。这个函数要等待一个Future结果，如果这个Future在5ms之前就返回了，
+ 那么它虽然明面上处理了错误，但在错误抛出的那一时刻并没有抓住它，所以异常还是被抛出了。）
+
+(本人再注：Future的then方法第一个参数是处理正确结果的回调，是个位置参数，剩下的参数是命名参数，看上去第一个更重要些，位置参数嘛。但实际上onError在调用链上要最早处理，似乎更急迫些。)
+
+注册回调函数时，分开注册两个回调函数通常更具可读性，首先使用[then]和一个参数(值处理程序)，然后使用第二个[catchError]来处理错误。
+
+（本人注：这个catchError是Future的实例方法哦，而前面提到的onError是then的命名参数，都是处理错误的，但是别搞错哦。比较一下，catchError好像顺眼得多，不要嵌套在一堆花花圆圆的括号里。）
+
+它们中的每一个都将它们不处理的结果转发给它们的后继者，它们一起处理值和错误结果。
+
+它还具有[catchError]处理[then]值回调中的错误的额外好处。
+
+使用顺序处理程序而不是并行处理程序通常会导致更容易推理的代码。
+
+它还使异步代码与同步代码非常相似:
+```dart
+ // Synchronous code.
+ try {
+   int value = foo();
+   return bar(value);
+ } catch (e) {
+   return 499;
+ }
+ ```
+
+基于Future的等效异步代码:
+```dart
+  Future<int> asyncValue = Future(foo);  // Result of foo() as a future.
+  asyncValue.then((int value) {
+    return bar(value);
+  }).catchError((e) {
+    return 499;
+  });
+```
+(本人注：刚开始不懂API的含义，好好的同步代码为什么要硬要改为异步。后来想通了，它并不是要把同步改异步，而是比较两段不同的代码，一个同步一个异步，但风格上有点类似。
+前面我也提过catchError比onError顺眼，就是API里面说的同步代码风格。)
+
+(本人再注：Future可以传递错误，但它只会在最末端爆发。上面的异步代码中，如果foo方法爆出了异常，但它包装在Future对象中，并不立即爆发，它传递到了then方法执行时，
+因为传递的是异常，所以它被传入了catchError方法，在最后被抓住。而如果foo没报异常，而是bar方法报异常，同样也被catchError捕获，所以catchError位于调用越末端越好？)
+
+(本人再再注：Future(foo)可以看到Future可以传入一个无参的函数，用它的返回值包装出一个Future对象。)
+
+与同步代码类似，错误处理程序(注册为[catchError])正在处理由' foo '或' bar '抛出的任何错误。
+如果错误处理程序被注册为' then '调用的' onError '参数，它将不会捕获' bar '调用的错误。(本人注：点头表示同意)
+
+
+Future可以注册多个回调对。每个继承者都被独立对待，并被当作唯一的继承者来处理。
+(本人注：意思就是Future调用链上的then注册的两个函数都会把结果传到下一个Future的then的对应的函数。)
+
+Future也可能永远无法完成。在这种情况下，不会调用回调。如果可能的话，通常应该避免这种情况，除非有非常明确的文件记录。
+(本人注：比如从服务器获取数据，结果服务器宕机,读取文件时文件被删了，永远不会有结果了，这该如何是好？我觉得应该在http api中有处理超时的异常吧，文件系统应该也有FileNotFoundException之类的异常吧。)
+
+##### 11.2.3 Future API实例再理解
+
+如果你认真阅读了API，都不用举厨房的例子就能理解Future了。
+
+* async方法
+
+这个方法会在另一个isolate中运行。所以并不是所有方法都能加上这个关键字，比如Flutter Widget的build方法，它是一个生命周期方法，必须在main isolate运行。
+
+* await
+
+await出现在方法调用前，出现它表示等待方法结果返回，程序被阻塞，而且该被调用的方法所处的方法必须被定义为async方法,而且它的返回值必须是Future。
+这样做虽然代码变为了同步代码，但出现了阻塞，而所处的方法自身也被隔离在一个新的isolate里面。
+
+* 需要Future的返回值怎么办？
+
+有时候我们需要Future带回的结果作为方法返回值，比如我们要Future<Student>的Student值最为方法返回值，比如：
+```dart
+//伪代码哦
+    String getStudentName(){//方法声明需要返回一个Student.name代表的String
+        studentService.findOne().then((value){//studentService.findOne()返回一个Future<Student>，在then中，这个value就是一个Student
+          return value.name;//在这里返回只会让value.name包装为Future<String>传递到下一个Future
+        });
+        //代码接着怎么写下去呢？怎么返回这个Student.name呢？好像怎么也弄不到这个Student类型的value
+        //似乎除了Student student = await studentService.findOne(),再返回student.name外没有别的方法了
+        
+    }
+```
+用await实现：
+```dart
+//这不是伪代码，能编译通过
+class Student {
+  String name;
+  Student(this.name);
+}
+
+Future<String> getStudentName() async {//使用await同步了，但是阻塞了，方法返回Future
+  Student student = await findOne();
+  return student.name;
+}
+
+Future<Student> findOne() {//不阻塞，但是返回的是Future
+  return Future.value(Student('陈圆圆'));
+}
+
+main() async {//同步了但是也阻塞了
+  String name = await getStudentName();
+  //String name =  getStudentName();//这里不用await,变量就要用Future<String>来接收
+
+  //这句是可以的
+  Future<String> futureName = getStudentName().then((value) => value).catchError((e) => 'err');
+}
+
+```
+可以看出无论用await+async还是用Future，在异步调用的链条上，方法都是返回Future。await+async在方法内部可以保持同步，但是阻塞了，
+而且方法变为async。
+
+我们思考一下String name =  getStudentName()这句代码为什么会编译出错。因为没有await，这句代码表示程序需要不阻塞的运行下去，
+而这个时候方法是还没有返回值的，所以它只能返回一个Future给你。
+
+所以回到本小节怎么办的问题，如果非要在同步代码中获得Future返回携带的值，只有用await等待结果返回。
+
+另外，可以做个思考，如果一个异步方法都用await方式同步调用，会造成多处阻塞吗？当然是不会的，一个阻塞是因为上一个阻塞造成的，只要源头的阻塞通了，所有的阻塞也就通了。
+
+到这里我感觉自己是弄懂了Future，心情也很舒畅。但是我怕自己表达能力不够，导致各位看官没看懂。我只能告诉大家，dart的Future api doc
+说的很清楚了，大家如果不理解我的，可以多看几遍英文api，说不定比我说得好。
+
+另外，真的不推荐看官网的资料，不如去翻译api的英文，不信你去看看 https://dart.cn/language/concurrency 。
+
+#### 11.3 Streams
+
+这个在flutter开发中还没有碰到这方面需求，等有需要的时候再回来吧。
