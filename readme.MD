@@ -947,6 +947,22 @@ Applies [action] to each key/value pair of the map.
 
 ##### 4.5.6 List API
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 太花时间了，碰到了再来补充。
 
 
@@ -2074,6 +2090,35 @@ To get an object’s type at runtime, you can use the Object property runtimeTyp
 ```dart
 print('The type of a is ${a.runtimeType}');
 ```
+非常要注意，runtimeType放回一个Type类型。比如你要判断一个变量是否为Map，下面的代码是错误的：
+
+```dart
+//错误示范
+if (jsonMap.runtimeType == Map<String, dynamic>) {
+    print('jsonMap is a Map<String, dynamic>');
+  } else {
+    print('jsonMap is not a Map<String, dynamic>');
+  }
+```
+正确的做法1：
+```dart
+if (jsonMap.runtimeType == Map<String, dynamic>.runtimeType) {
+    print('jsonMap is a Map<String, dynamic>');
+  } else {
+    print('jsonMap is not a Map<String, dynamic>');
+  }
+```
+
+正确的做法2,推荐：
+```dart
+if (jsonMap is Map<String, dynamic>) {
+    print('jsonMap is a Map<String, dynamic>');
+  } else {
+    print('jsonMap is not a Map<String, dynamic>');
+  }
+```
+
+
 #### 9.4 实例变量(Instance variables)
 
 实例就是通过类的构造函数生成的这个类的一个“产品”，或者说对象什么的吧，我表达能力不好，你能理解就好。
